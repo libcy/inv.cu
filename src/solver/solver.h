@@ -74,7 +74,7 @@ protected:
 			for (size_t i = istr.size(); i < 6; i++) {
 				istr = "0" + istr;
 			}
-			return path + "/output/" + (trace_type?"u":"v") + comp + "_" + istr + ".su";
+			return path + "/traces/" + (trace_type?"u":"v") + comp + "_" + istr + ".su";
 		};
 		auto write = [&](string comp, float *data) {
 			std::ofstream outfile(filename(comp), std::ofstream::binary);

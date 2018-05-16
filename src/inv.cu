@@ -77,14 +77,6 @@ int main(int argc, const char *argv[]){
 			deviceQuery();
 			break;
 		}
-		case 5: {
-			Solver *solver = module::solver(config->i["solver"]);
-			solver->init(config);
-			solver->importModel(true);
-			solver->exportAxis();
-			solver->exportModel();
-			break;
-		}
 	}
 
 	cublasDestroy(device::cublas_handle);
