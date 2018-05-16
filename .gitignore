@@ -1,0 +1,6 @@
+*.out
+*.exe
+*.exp
+*.lib
+output
+.DS_Store
