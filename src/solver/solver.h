@@ -95,6 +95,8 @@ protected:
 			free(data);
 		};
 
+		createDirectory(path + "/traces");
+
 		if (sh) {
 			write("y", host::create(nt * nrec, out_y));
 		}
