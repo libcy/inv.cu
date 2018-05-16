@@ -1,4 +1,4 @@
-#include "../lib/index.h"
+#include "../src/lib/index.h"
 
 namespace _generateChecker {
 	__global__ void generate(
