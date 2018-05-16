@@ -4,6 +4,6 @@
 A rewrite of [cuinv2d](https://github.com/libcy/cuinv2d) focused on performance and extensibility improvements.
 
 Usage:
-./compile.sh
-./inv.out ${config_dir}
-e.g. ./inv.out examples/marmousi_sh
+````
+./compile.sh && ./inv.out ${config_dir}
+````
