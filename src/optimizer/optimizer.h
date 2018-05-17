@@ -462,7 +462,7 @@ public:
 			std::cout << t_min << "min " << t_sec << "s" << std::endl;
 		}
 		else{
-			std::cout << std::round(time_elapsed) << std::endl;
+			std::cout << std::round(time_elapsed) << "s" << std::endl;
 		}
 	};
 	virtual void init(Config *config, Solver *solver, Misfit *misfit) {
