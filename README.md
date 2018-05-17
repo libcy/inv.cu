@@ -5,5 +5,5 @@ A rewrite of [cuinv2d](https://github.com/libcy/cuinv2d) focused on performance 
 
 Usage:
 ````
-./compile.sh && ./inv.out ${config_dir}
+./compile.sh && ./inv.out ${project_dir}
 ````

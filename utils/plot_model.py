@@ -72,7 +72,7 @@ if __name__ == '__main__':
 		  plot_model.py  folder_name  component_name||file_name  (time_step)
 		  e.g. ./plot_model.py output vx 1000
 			   ./plot_model.py output proc001000_vx.bin
-			   ./plot_model.py examples/model/checker vs
+			   ./plot_model.py projects/checker/model_true vs
 	"""
 
 	istr = ''
