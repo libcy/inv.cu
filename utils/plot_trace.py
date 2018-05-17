@@ -31,10 +31,17 @@ if __name__ == '__main__':
 
 	  SYNTAX
 		  plot_trace.py  folder_name  component_name||file_name  (source id)
+		  add --save to save to image to file
 		  e.g. ./plot_trace.py output vx
 			   ./plot_trace.py output vx 0
-			   ./plot_trace.py output vx_000000.su
+			   ./plot_trace.py output vx_000000.su --save
 	"""
+
+	sav = False
+	for i in range(len(sys.argv)):
+		if sys.argv[i] == '--save':
+			sav = True
+
 	istr = ''
 	if len(sys.argv) > 3:
 		istr = str(sys.argv[3])
@@ -61,4 +68,8 @@ if __name__ == '__main__':
 		pylab.plot(t, data[i] + i * am, 'b')
 
 	pylab.gca().yaxis.set_visible(False)
-	pylab.show()
+	
+	if sav:
+		pylab.savefig(path.replace('.su', '.eps'))
+	else:
+		pylab.show()

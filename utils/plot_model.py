@@ -70,10 +70,16 @@ if __name__ == '__main__':
 
 	  SYNTAX
 		  plot_model.py  folder_name  component_name||file_name  (time_step)
+		  add --save to save to image to file
 		  e.g. ./plot_model.py output vx 1000
 			   ./plot_model.py output proc001000_vx.bin
-			   ./plot_model.py projects/checker/model_true vs
+			   ./plot_model.py projects/checker/model_true vs --save
 	"""
+
+	sav = False
+	for i in range(len(sys.argv)):
+		if sys.argv[i] == '--save':
+			sav = True
 
 	istr = ''
 	if len(sys.argv) > 3:
@@ -130,4 +136,8 @@ if __name__ == '__main__':
 	pylab.xlabel('x / km')
 	pylab.ylabel('z / km')
 	pylab.gca().invert_yaxis()
-	pylab.show()
+
+	if sav:
+		pylab.savefig(database_file.replace('.bin', '.png'))
+	else:
+		pylab.show()
