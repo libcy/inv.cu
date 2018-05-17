@@ -20,7 +20,7 @@ private:
 		}
 	};
 	void loadConfig(string cfgpath, map<string, string> &cfg) {
-		std::ifstream infile(cfgpath);
+		std::ifstream infile(cfgpath + "/config.ini");
 		size_t pos;
 		string data;
 		while (getline(infile, data)) {
@@ -91,7 +91,7 @@ public:
 	string path;
 	Config(map<string, string> &cfg) {
 		path = "projects/" + cfg["config"];
-		loadConfig(path + "/config.ini", cfg);
+		loadConfig(path, cfg);
 		if (cfg["inherit"].size()) {
 			loadConfig("projects/" + cfg["inherit"], cfg);
 		}
