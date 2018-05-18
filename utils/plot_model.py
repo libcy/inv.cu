@@ -73,7 +73,7 @@ if __name__ == '__main__':
 		  add --save to save to image to file
 		  e.g. ./plot_model.py output vx 1000
 			   ./plot_model.py output proc001000_vx.bin
-			   ./plot_model.py projects/checker/model_true vs --save
+			   ./plot_model.py projects/example_checker/model_true vs --save
 	"""
 
 	sav = False

@@ -4,12 +4,9 @@
 *.lib
 
 projects/*
-!projects/checker
-!projects/marmousi_psv
-!projects/marmousi_sh
-projects/checker/output
-projects/marmousi_psv/output
-projects/marmousi_sh/output
+!projects/example_*
+projects/example_*/output
+projects/example_*/traces
 
 .DS_Store
 ._*

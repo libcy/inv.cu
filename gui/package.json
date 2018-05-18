@@ -1,8 +1,5 @@
 {
     "name": "inv.cu",
     "version": "0.0.1",
-    "main": "electron.js",
-    "dependencies": {
-        "ws": "^5.1.0"
-    }
+    "main": "electron.js"
 }

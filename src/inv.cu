@@ -25,8 +25,8 @@ int main(int argc, const char *argv[]){
 	}
 
 	if (!cfg["config"].size()) {
-		std::cout << "Running default project: \"checker\"" << std::endl;
-		cfg["config"] = "checker";
+		std::cout << "Running default project: example_checker" << std::endl;
+		cfg["config"] = "example_checker";
 	}
 
 	Config *config = new Config(cfg);

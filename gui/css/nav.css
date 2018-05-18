@@ -1,0 +1,114 @@
+/* general */
+nav {
+	background-color: rgb(36, 41, 46);
+	color: white;
+}
+
+nav > section:nth-child(1),
+nav > section:nth-child(2) {
+	cursor: pointer;
+	border-right-color: black;
+}
+
+nav > section:nth-child(1):hover,
+nav > section:nth-child(2):hover {
+	background-color: rgb(47, 54, 61);
+}
+
+nav > section > * {
+	position: absolute;
+}
+
+nav > section > figure {
+	width: 50px;
+	height: 50px;
+	margin: 0;
+}
+
+nav > section > figure > * {
+	position: absolute;
+}
+
+nav > section > div {
+	left: 50px;
+	top: 8px;
+	height: 30px;
+}
+
+nav > section > div > div:first-child {
+	font-size: 15px;
+}
+
+nav > section > div > div:last-child {
+	margin-top: 1px;
+	font-size: 11px;
+	color: rgb(209, 213, 218);
+}
+
+/* project */
+nav > section:nth-child(1) > figure > div {
+	background-color: white;
+	height: 3px;
+	border-radius: 3px;
+}
+nav > section:nth-child(1) > figure > div:nth-child(even) {
+	width: 3px;
+	left: 14px;
+}
+nav > section:nth-child(1) > figure > div:nth-child(odd) {
+	width: 16px;
+	left: 20px;
+}
+nav > section:nth-child(1) > figure > div:nth-child(1),
+nav > section:nth-child(1) > figure > div:nth-child(2) {
+	top: 16px;
+}
+nav > section:nth-child(1) > figure > div:nth-child(3),
+nav > section:nth-child(1) > figure > div:nth-child(4) {
+	top: 23px;
+}
+nav > section:nth-child(1) > figure > div:nth-child(5),
+nav > section:nth-child(1) > figure > div:nth-child(6) {
+	top: 30px;
+}
+
+/* run */
+nav > section:nth-child(2) > figure > div {
+	top: 15px;
+	left: 20px;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 10px 0 10px 15px;
+	border-color: transparent transparent transparent white;
+}
+
+/* status */
+nav > section:nth-child(3) > figure {
+	cursor: pointer;
+	width: 34px;
+	right: 0;
+}
+
+nav > section:nth-child(3) > figure > div {
+	width: 2px;
+	height: 8px;
+	border-radius: 2px;
+	top: 19px;
+	background-color: rgb(209, 213, 218);
+	transform-origin: bottom center;
+}
+
+nav > section:nth-child(3) > figure:hover > div {
+	background-color: white;
+}
+
+nav > section:nth-child(3) > figure > div:nth-child(1) {
+	transform: rotate(-46deg);
+	left: 17px;
+}
+
+nav > section:nth-child(3) > figure > div:nth-child(2) {
+	transform: rotate(46deg);
+	left: 16px;
+}

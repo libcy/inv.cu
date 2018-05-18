@@ -102,7 +102,7 @@ public:
 			removeDirectory(path + "/output");
 		}
 		createDirectory(path + "/output");
-		if (this->i["nthread"]) {
+		if (this->i["nthread"] > 0) {
 			device::nthread = this->i["nthread"];
 		}
 	};

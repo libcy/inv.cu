@@ -1,0 +1,27 @@
+[
+	{
+		"name": "General",
+		"type": "seperator"
+	},
+	{
+		"name": "Mode",
+		"id": "mode",
+		"options": [
+			"Inverse",
+			"Forward",
+			"Adjoint",
+			"Generate Trace",
+			"Device Query"
+		]
+	},
+	{
+		"name": "Clean output directory",
+		"id": "clean",
+		"type": "bool"
+	},
+	{
+		"name": "Threads per block",
+		"id": "nthread",
+		"type": "int"
+	}
+]

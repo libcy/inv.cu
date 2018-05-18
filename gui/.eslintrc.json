@@ -7,5 +7,8 @@
 	},
 	"parserOptions": {
 		"ecmaVersion": 2017
+	},
+	"globals": {
+		"create": true
 	}
 }
