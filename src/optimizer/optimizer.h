@@ -10,6 +10,16 @@ namespace _Optimizer {
 			d_out2[j * N + i] = d_in2[j * M + i];
 		}
 	}
+	__global__ void updateModel(float *m_new, float *p_new, float alpha, float m_min, float m_max, Dim dim) {
+		int i, j, k; if (dim(i, j, k)) return;
+		m_new[k] += alpha * p_new[k];
+		if (m_min >= 0 && m_new[k] < m_min) {
+			m_new[k] = m_min;
+		}
+		if (m_max > 0 && m_new[k] > m_max) {
+			m_new[k] = m_max;
+		}
+	}
 }
 
 class Optimizer {
@@ -19,6 +29,9 @@ protected:
 
 	Misfit *misfit;
 	Solver *solver;
+
+	float m_max[3];
+	float m_min[3];
 
 	float **m_new;
 	float **m_old;
@@ -84,6 +97,16 @@ protected:
 				device::copy(data[ip], source[ip], solver->dim);
 			}
 		}
+	};
+	void p_update(float alpha, float &alpha_old) {
+		using namespace _Optimizer;
+		Dim &dim = solver->dim;
+		for (size_t ip = 0; ip < 3; ip++) {
+			if (inv_parameter[ip]) {
+				updateModel<<<dim.dg, dim.db>>>(m_new[ip], p_new[ip], alpha - alpha_old, m_min[ip], m_max[ip], dim);
+			}
+		}
+		alpha_old = alpha;
 	};
 	void p_toHost(float **h_data, float **data) {
 		for (size_t ip = 0; ip < 3; ip++) {
@@ -374,7 +397,7 @@ protected:
 		ls_gtp[inv_count - 1] = gtp;
 		ls_count++;
 
-		float alpha_current = 0;
+		float alpha_old = 0;
 
 		if(ls_step_init && ls_count <= 1){
 			alpha = ls_step_init * norm_m / norm_p;
@@ -384,8 +407,9 @@ protected:
 		}
 
 		while(true){
-			p_calc(m_new, 1, m_new, alpha - alpha_current, p_new);
-			alpha_current = alpha;
+			p_update(alpha, alpha_old);
+			// p_calc(m_new, 1, m_new, alpha - alpha_old, p_new);
+			// alpha_old = alpha;
 			ls_lens[ls_count] = alpha;
 			ls_vals[ls_count] = misfit->run(false);
 			ls_count++;
@@ -400,11 +424,13 @@ protected:
 
 			if(status > 0){
 				std::cout << "  alpha = " << alpha << std::endl;
-				p_calc(m_new, 1, m_new, alpha - alpha_current, p_new);
+				p_update(alpha, alpha_old);
+				// p_calc(m_new, 1, m_new, alpha - alpha_old, p_new);
 				return status;
 			}
 			else if(status < 0){
-				p_calc(m_new, 1, m_new, -alpha_current, p_new);
+				p_update(0, alpha_old);
+				// p_calc(m_new, 1, m_new, -alpha_old, p_new);
 				if(p_angle(p_new, g_new, -1) < 1e-3){
 					std::cout << "  line search failed" << std::endl;
 					return status;
@@ -481,6 +507,13 @@ public:
 		ls_step_max = config->f["ls_step_max"];
 		ls_step_init = config->f["ls_step_init"];
 		ls_thresh = config->f["ls_thresh"];
+
+		m_min[lambda] = config->f["lambda_min"];
+		m_min[mu] = config->f["mu_min"];
+		m_min[rho] = config->f["rho_min"];
+		m_max[lambda] = config->f["lambda_max"];
+		m_max[mu] = config->f["mu_max"];
+		m_max[rho] = config->f["rho_max"];
 
 		int nstep = inv_iteration * ls_step;
 		ls_vals = host::create(nstep);
