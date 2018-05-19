@@ -36,17 +36,21 @@ function createWindow() {
 					{ role: 'selectall' }
 				]
 			}]
-
 			Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 		}
-
-		win.on('enter-full-screen', () => {
-			win.webContents.executeJavaScript('document.body.classList.add("full-screen")');
-		});
-		win.on('leave-full-screen', () => {
-			win.webContents.executeJavaScript('document.body.classList.remove("full-screen")');
-		});
 	}
+	win.on('enter-full-screen', () => {
+		win.webContents.executeJavaScript('document.body.classList.add("full-screen")');
+	});
+	win.on('leave-full-screen', () => {
+		win.webContents.executeJavaScript('document.body.classList.remove("full-screen")');
+	});
+	win.on('maximize', () => {
+		win.webContents.executeJavaScript('document.body.classList.add("maximized")');
+	});
+	win.on('unmaximize', () => {
+		win.webContents.executeJavaScript('document.body.classList.remove("maximized")');
+	});
 }
 
 app.on('ready', createWindow);

@@ -11,11 +11,9 @@ const maximize = create('#header-maximize', controls, () => {
 	const win = remote.BrowserWindow.getFocusedWindow();
 	if (win.isMaximized()) {
 		win.unmaximize();
-		maximize.classList.remove('maximized');
 	}
 	else {
 		win.maximize();
-		maximize.classList.add('maximized');
 	}
 });
 const close = create('#header-close', controls, () => {
