@@ -3,11 +3,11 @@ body > .layer {
 	height: calc(100% - var(--header-height));
 	top: var(--header-height);
 	position: absolute;
-	pointer-events: none;
+	visibility: hidden;
 }
 
 body > .layer.active {
-	pointer-events: auto;
+	visibility: visible;
 }
 
 #panel-layer {
@@ -16,4 +16,70 @@ body > .layer.active {
 
 #menu-layer {
 	z-index: 20;
+}
+
+.context-menu {
+	width: 180px;
+	background: white;
+	position: absolute;
+	border-radius: 2px;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 0 0 1px;
+}
+
+.context-menu.text > div {
+	position: relative;
+	height: 30px;
+	line-height: 30px;
+}
+
+.context-menu.text > div > span {
+	margin-left: 16px;
+	font-size: 14px;
+}
+.context-menu.text > div:hover {
+	background-color: #f6f8fa;
+}
+
+.context-menu.text > div:not(*:first-child) {
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.context-menu.prompt {
+	height: 80px;
+	overflow: hidden;
+}
+.context-menu.prompt > * {
+	position: absolute;
+	text-align: center;
+}
+.context-menu.prompt > input {
+	border: none;
+	box-shadow: none;
+	outline: none;
+	width: 100%;
+	height: 50px;
+	line-height: 50px;
+	font-size: 30px;
+	color: #547892;
+	left: 0;
+}
+.context-menu.prompt > div {
+	width: 100%;
+	height: 29px;
+	top: 50px;
+	border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+.context-menu.prompt > div > div {
+	position: absolute;
+	width: 90px;
+	height: 100%;
+	line-height: 29px;
+	cursor: pointer;
+}
+.context-menu.prompt > div > div:hover {
+	background-color: #f6f8fa;
+}
+.context-menu.prompt > div > div:last-child {
+	left: 89.5px;
+	border-left: 1px solid rgba(0, 0, 0, 0.2);
 }
