@@ -1,6 +1,8 @@
 const {remote} = require('electron');
 
 const header = create('header', document.body);
+create(header);
+create(header);
 const controls = create('section', header);
 const minimize = create('#header-minimize', controls, () => {
 	remote.BrowserWindow.getFocusedWindow().minimize(); 

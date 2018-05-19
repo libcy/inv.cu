@@ -44,7 +44,6 @@ nav {
 	z-index: 1;
 	top: var(--header-height);
 	height: 50px;
-	-webkit-app-region: drag;
 }
 
 main {
