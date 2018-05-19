@@ -1,22 +1,22 @@
 const {app, Menu, BrowserWindow} = require('electron');
 
 let win;
-const darwin = process.platform === 'darwin';
 
 function createWindow() {
 	win = new BrowserWindow({
 		width: 960,
 		height: 1440,
 		title: 'inv.cu',
-		titleBarStyle: darwin ? 'hidden' : ''
+		titleBarStyle: process.platform === 'darwin' ? 'hidden' : '',
+		frame: process.platform != 'win32'
 	});
-	win.loadURL(`file:///Users/widget/Documents/workspace/inv.cu/gui/index.html`);
+	win.loadURL(`${__dirname}/index.html`);
 	win.webContents.openDevTools();
 	win.on('closed', () => {
 		win = null;
 	});
 
-	if (darwin) {
+	if (process.platform === 'darwin') {
 		if (!Menu.getApplicationMenu()) {
 			const template = [{
 				label: "inv.cu",
@@ -41,9 +41,6 @@ function createWindow() {
 			Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 		}
 
-		win.webContents.on('did-finish-load', () => {
-			win.webContents.executeJavaScript('document.body.classList.add("darwin")');
-		});
 		win.on('enter-full-screen', () => {
 			win.webContents.executeJavaScript('document.body.classList.add("full-screen")');
 		});

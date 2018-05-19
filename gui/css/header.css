@@ -1,4 +1,150 @@
+body:not(.full-screen)[data-platform = 'mac'] {
+	--header-height: 22px;
+}
+
 [data-platform='mac'] > header {
-	background: linear-gradient(to bottom, #3b3f46 0%, #2b2e33 100%);
+	background-image: linear-gradient(to bottom, #3b3f46 0%, #2b2e33 100%);
 	border-bottom: 1px solid #000;
+}
+
+[data-platform='mac'] > header > section {
+	display: none;
+}
+
+body:not(.full-screen)[data-platform = 'win'] {
+	--header-height: 28px;
+}
+
+[data-platform='win'] > header {
+	border-bottom: 1px solid #000;
+	background-color: #24292e;
+}
+
+[data-platform='win'] > header > section {
+	position: absolute;
+	right: 0;
+	height: 100%;
+	width: 135px;
+}
+
+[data-platform='win'] > header > section > div {
+	width: 45px;
+	display: inline-block;
+	height: 100%;
+	position: relative;
+}
+
+[data-platform='win'] > header > section > div:hover {
+	background-color: #888;
+}
+
+[data-platform='win'] > header > section > div:last-child:hover {
+	background-color: #e81123;
+}
+
+[data-platform='win'] > header > section > div > div {
+	position: absolute;
+	background-color: #a0a0a0;
+}
+
+[data-platform='win'] > header > section > div:hover > div {
+	background-color: #fff;
+}
+
+#header-minimize > div {
+	width: 10px;
+	height: 1px;
+	left: 17.5px;
+	top: 13.5px;
+}
+
+#header-maximize > div:nth-child(1) {
+	left: 17.5px;
+	top: 9px;
+	width: 10px;
+	height: 1px;
+}
+#header-maximize > div:nth-child(2) {
+	left: 17.5px;
+	top: 9px;
+	width: 1px;
+	height: 10px;
+}
+#header-maximize > div:nth-child(3) {
+	left: 17.5px;
+	top: 18px;
+	width: 10px;
+	height: 1px;
+}
+#header-maximize > div:nth-child(4) {
+	left: 26.5px;
+	top: 9px;
+	width: 1px;
+	height: 10px;
+}
+
+#header-maximize.maximized > div:nth-child(1) {
+	left: 17.5px;
+	top: 11px;
+	width: 8px;
+	height: 1px;
+}
+#header-maximize.maximized > div:nth-child(2) {
+	left: 17.5px;
+	top: 11px;
+	width: 1px;
+	height: 8px;
+}
+#header-maximize.maximized > div:nth-child(3) {
+	left: 17.5px;
+	top: 18px;
+	width: 8px;
+	height: 1px;
+}
+#header-maximize.maximized > div:nth-child(4) {
+	left: 24.5px;
+	top: 11px;
+	width: 1px;
+	height: 8px;
+}
+#header-maximize.maximized > div:nth-child(5) {
+	left: 19.5px;
+	top: 9px;
+	width: 8px;
+	height: 1px;
+}
+#header-maximize.maximized > div:nth-child(6) {
+	left: 19.5px;
+	top: 9px;
+	width: 1px;
+	height: 3px;
+}
+#header-maximize.maximized > div:nth-child(7) {
+	left: 24.5px;
+	top: 16px;
+	width: 3px;
+	height: 1px;
+}
+#header-maximize.maximized > div:nth-child(8) {
+	left: 26.5px;
+	top: 9px;
+	width: 1px;
+	height: 8px;
+}
+
+#header-close > div:nth-child(1) {
+	left: 15.5px;
+	top: 13.5px;
+	width: 14px;
+	height: 1px;
+	transform: rotate(45deg);
+	transform-origin: center;
+}
+#header-close > div:nth-child(2) {
+	left: 15.5px;
+	top: 13.5px;
+	width: 14px;
+	height: 1px;
+	transform: rotate(-45deg);
+	transform-origin: center;
 }

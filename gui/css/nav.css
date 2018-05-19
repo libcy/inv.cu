@@ -7,7 +7,7 @@ nav {
 nav > section:nth-child(1),
 nav > section:nth-child(2) {
 	cursor: pointer;
-	border-right-color: black;
+	border-right: 1px solid black;
 }
 
 nav > section:nth-child(1):hover,

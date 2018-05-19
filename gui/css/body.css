@@ -9,10 +9,6 @@ body {
 	--header-height: 0px;
 }
 
-body:not(.full-screen)[data-platform = 'mac'] {
-	--header-height: 22px;
-}
-
 body > * {
 	position: absolute;
 	width: 100%;
@@ -27,8 +23,6 @@ body > * > section {
 body > * > section:nth-child(1),
 body > * > section:nth-child(2) {
 	width: 250px;
-	border-right-width: 1px;
-	border-right-style: solid;
 }
 
 body > * > section:nth-child(2) {
