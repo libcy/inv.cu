@@ -4,6 +4,7 @@ global.create = (...args) => {
 	let classList = null;
 	let parentNode = null;
 	let innerHTML = null;
+	let onclick = null;
 	let num = 0;
 	for (let arg of args) {
 		if (typeof arg === 'string') {
@@ -27,6 +28,9 @@ global.create = (...args) => {
 		else if (typeof arg === 'number') {
 			num = arg;
 		}
+		else if (typeof arg === 'function') {
+			onclick = arg;
+		}
 	}
 	const elements = [];
 	for (let i = 0; i < Math.max(1, num); i++) {
@@ -41,6 +45,9 @@ global.create = (...args) => {
 		}
 		if (innerHTML) {
 			element.innerHTML = innerHTML;
+		}
+		if (onclick) {
+			element.addEventListener('click', onclick);
 		}
 		if (parentNode) {
 			parentNode.appendChild(element);

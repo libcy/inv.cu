@@ -46,34 +46,34 @@ nav > section > div > div:last-child {
 }
 
 /* project */
-nav > section:nth-child(1) > figure > div {
+#nav-project > figure > div {
 	background-color: white;
 	height: 3px;
 	border-radius: 3px;
 }
-nav > section:nth-child(1) > figure > div:nth-child(even) {
+#nav-project > figure > div:nth-child(even) {
 	width: 3px;
 	left: 14px;
 }
-nav > section:nth-child(1) > figure > div:nth-child(odd) {
+#nav-project > figure > div:nth-child(odd) {
 	width: 16px;
 	left: 20px;
 }
-nav > section:nth-child(1) > figure > div:nth-child(1),
-nav > section:nth-child(1) > figure > div:nth-child(2) {
+#nav-project > figure > div:nth-child(1),
+#nav-project > figure > div:nth-child(2) {
 	top: 16px;
 }
-nav > section:nth-child(1) > figure > div:nth-child(3),
-nav > section:nth-child(1) > figure > div:nth-child(4) {
+#nav-project > figure > div:nth-child(3),
+#nav-project > figure > div:nth-child(4) {
 	top: 23px;
 }
-nav > section:nth-child(1) > figure > div:nth-child(5),
-nav > section:nth-child(1) > figure > div:nth-child(6) {
+#nav-project > figure > div:nth-child(5),
+#nav-project > figure > div:nth-child(6) {
 	top: 30px;
 }
 
 /* run */
-nav > section:nth-child(2) > figure > div {
+#nav-run > figure > div {
 	top: 15px;
 	left: 20px;
 	width: 0;
@@ -84,13 +84,13 @@ nav > section:nth-child(2) > figure > div {
 }
 
 /* status */
-nav > section:nth-child(3) > figure {
+#nav-status > figure {
 	cursor: pointer;
 	width: 34px;
 	right: 0;
 }
 
-nav > section:nth-child(3) > figure > div {
+#nav-status > figure > div {
 	width: 2px;
 	height: 8px;
 	border-radius: 2px;
@@ -99,16 +99,16 @@ nav > section:nth-child(3) > figure > div {
 	transform-origin: bottom center;
 }
 
-nav > section:nth-child(3) > figure:hover > div {
+#nav-status > figure:hover > div {
 	background-color: white;
 }
 
-nav > section:nth-child(3) > figure > div:nth-child(1) {
+#nav-status > figure > div:nth-child(1) {
 	transform: rotate(-46deg);
 	left: 17px;
 }
 
-nav > section:nth-child(3) > figure > div:nth-child(2) {
+#nav-status > figure > div:nth-child(2) {
 	transform: rotate(46deg);
 	left: 16px;
 }

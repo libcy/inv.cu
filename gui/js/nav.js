@@ -1,8 +1,8 @@
 const nav = create('nav', document.body);
 
-const project = create('section', nav);
-const run = create('section', nav);
-const status = create('section', nav);
+const project = create('section#nav-project', nav);
+const run = create('section#nav-run', nav);
+const status = create('section#nav-status', nav);
 
 const project_figure = create('figure', project);
 create(project_figure, 6);
@@ -18,3 +18,7 @@ create(run_text, '', 'none');
 
 const status_figure = create('figure', status);
 create(status_figure, 2);
+
+require('./nav-project');
+require('./nav-run');
+require('./nav-status');

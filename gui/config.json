@@ -6,12 +6,13 @@
 	{
 		"name": "Mode",
 		"id": "mode",
+		"type": "list",
 		"options": [
-			"Inverse",
-			"Forward",
-			"Adjoint",
-			"Generate Trace",
-			"Device Query"
+			"inverse",
+			"forward",
+			"adjoint",
+			"generate trace",
+			"device query"
 		]
 	},
 	{
@@ -23,5 +24,255 @@
 		"name": "Threads per block",
 		"id": "nthread",
 		"type": "int"
+	},
+	{
+		"name": "Forward",
+		"type": "seperator"
+	},
+	{
+		"name": "Forward Solver",
+		"id": "solver",
+		"type": "list",
+		"options": ["finite difference"]
+	},
+	{
+		"name": "Include SH wave",
+		"id": "sh",
+		"type": "bool"
+	},
+	{
+		"name": "Include P-SV wave",
+		"id": "psv",
+		"type": "bool"
+	},
+	{
+		"name": "Number of timestep",
+		"id": "nt",
+		"type": "int"
+	},
+	{
+		"name": "Length of 1 timestep",
+		"id": "dt",
+		"type": "float"
+	},
+	{
+		"name": "Model parameterization",
+		"id": "model_type",
+		"type": "list",
+		"options": [
+			"vp / vs",
+			"lambda / mu"
+		]
+	},
+	{
+		"name": "Trace parameterization",
+		"id": "trace_type",
+		"type": "list",
+		"options": [
+			"velocity",
+			"displacement"
+		]
+	},
+	{
+		"name": "Width of absorbing boundary",
+		"id": "abs_width",
+		"type": "int"
+	},
+	{
+		"name": "Absorbing boundary parameter",
+		"id": "abs_alpha",
+		"type": "float"
+	},
+	{
+		"name": "Absorbing boundary at top",
+		"id": "abs_top",
+		"type": "bool"
+	},
+	{
+		"name": "Absorbing boundary at bottom",
+		"id": "abs_bottom",
+		"type": "bool"
+	},
+	{
+		"name": "Absorbing boundary at left",
+		"id": "abs_left",
+		"type": "bool"
+	},
+	{
+		"name": "Absorbing boundary at right",
+		"id": "abs_right",
+		"type": "bool"
+	},
+	{
+		"name": "Write forward snapshot every wfe timestep",
+		"id": "wfe",
+		"type": "int",
+		"mode": ["forward"]
+	},
+	{
+		"name": "Adjoint",
+		"type": "seperator",
+		"mode": ["inverse", "adjoint"]
+	},
+	{
+		"name": "Misfit type",
+		"id": "misfit",
+		"type": "list",
+		"options": [
+			"Waveform",
+			"Envelope"
+		]
+	},
+	{
+		"name": "Filter type",
+		"id": "filter",
+		"type": "list",
+		"options": [
+			"Gaussian"
+		]
+	},
+	{
+		"name": "Filter parameter",
+		"id": "filter_sigma",
+		"type": "int"
+	},
+	{
+		"name": "Use trace file",
+		"id": "trace_file",
+		"type": "bool"
+	},
+	{
+		"name": "Save forward snapshot every sfe timestep",
+		"id": "sfe",
+		"type": "int"
+	},
+	{
+		"name": "Write adjoint snapshot every wae timestep",
+		"id": "wae",
+		"type": "int",
+		"mode": ["adjoint"]
+	},
+	{
+		"name": "Optimization",
+		"type": "seperator",
+		"mode": ["inverse"]
+	},
+	{
+		"name": "Optimization method",
+		"id": "optimizer",
+		"type": "list",
+		"options": [
+			"NLCG",
+			"L-BFGS"
+		]
+	},
+	{
+		"name": "Maximum iteration count",
+		"id": "inv_iteration",
+		"type": "int"
+	},
+	{
+		"name": "Periodic restart interval",
+		"id": "inv_cycle",
+		"type": "int"
+	},
+	{
+		"name": "Sharpen output model",
+		"id": "inv_sharpen",
+		"type": "float"
+	},
+	{
+		"name": "Invert lambda",
+		"id": "inv_lambda",
+		"type": "bool"
+	},
+	{
+		"name": "Invert mu",
+		"id": "inv_mu",
+		"type": "bool"
+	},
+	{
+		"name": "Invert rho",
+		"id": "inv_rho",
+		"type": "bool"
+	},
+	{
+		"name": "Lower bound of lambda",
+		"id": "lambda_min",
+		"type": "float"
+	},
+	{
+		"name": "Upper bound of lambda",
+		"id": "lambda_max",
+		"type": "float"
+	},
+	{
+		"name": "Lower bound of mu",
+		"id": "mu_min",
+		"type": "float"
+	},
+	{
+		"name": "Upper bound of mu",
+		"id": "mu_max",
+		"type": "float"
+	},
+	{
+		"name": "Lower bound of rho",
+		"id": "rho_min",
+		"type": "float"
+	},
+	{
+		"name": "Upper bound of rho",
+		"id": "rho_max",
+		"type": "float"
+	},
+	{
+		"name": "NLCG type",
+		"id": "nlcg_type",
+		"type": "list",
+		"options": [
+			"Fletcher-Reeves",
+			"Pollak-Ribere"
+		]
+	},
+	{
+		"name": "NLCG conjugacy restart threshold",
+		"id": "nlcg_thresh",
+		"type": "float"
+	},
+	{
+		"name": "L-BFGS memory",
+		"id": "lbfgs_mem",
+		"type": "int"
+	},
+	{
+		"name": "L-BFGS angle restart threshold",
+		"id": "lbfgs_thresh",
+		"type": "float"
+	},
+	{
+		"name": "Line search",
+		"type": "seperator",
+		"mode": ["inverse"]
+	},
+	{
+		"name": "Maximum step count",
+		"id": "ls_step",
+		"type": "int"
+	},
+	{
+		"name": "Maximum step length",
+		"id": "ls_step_max",
+		"type": "float"
+	},
+	{
+		"name": "Initial step length",
+		"id": "ls_step_init",
+		"type": "float"
+	},
+	{
+		"name": "Stopping threshold",
+		"id": "ls_thresh",
+		"type": "float"
 	}
 ]
