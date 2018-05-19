@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const cwd = path.dirname(path.dirname(__dirname));
-const config = {};
+const config = { lines: {} };
 const getdirs = (pathname, callback) => {
 	fs.readdir(pathname, (err, files) => {
 		if (!err) {
@@ -28,7 +28,42 @@ const readFile = (pathname, callback) => {
 		}
 	});
 };
-const updateConfig = cfg => {
+
+const readConfig = (pathname, callback, asDefault) => {
+	readFile(pathname, data => {
+		const lines = data.split('\n');
+		for (let line of lines) {
+			const str = line;
+			if (line.indexOf('#') != -1) {
+				line = line.slice(0, line.indexOf('#'));
+			}
+			if (line.indexOf('=') != -1) {
+				line = line.replace(/ /g, '').split('=');
+				const cfg = config[line[0]];
+				if (cfg) {
+					let value = '';
+					switch(cfg.type) {
+						case 'int': case 'list': value = parseInt(line[1]); break;
+						case 'float': value = parseFloat(line[1]); break;
+						case 'bool': value = (parseInt(line[1]) != 0); break;
+					}
+					if (asDefault) {
+						cfg.defaultValue = value;
+						if (!cfg.hasOwnProperty(value)) {
+							cfg.value = value;
+						}
+					}
+					else {
+						cfg.value = value;
+						config.lines[line[0]] = str;
+					}
+				}
+			}
+		}
+		callback();
+	});
+};
+const updateConfig = (cfg, write) => {
 	let str;
 	if (cfg.options) {
 		str = cfg.options[cfg.value];
@@ -65,7 +100,7 @@ const loadProject = global.loadProject = name => {
 			},
 			bool() {
 				this.cfg.value = !this.cfg.value;
-				updateConfig(this.cfg);
+				updateConfig(this.cfg, true);
 			}
 		};
 		for (let cfg of config.entries) {
@@ -86,26 +121,7 @@ const loadProject = global.loadProject = name => {
 			navRun.lastChild.lastChild.innerHTML = config.mode.options[config.mode.value];
 		}
 	};
-	readFile(path.join(project_dir, 'config.ini'), data => {
-		const lines = data.split('\n');
-		for (let line of lines) {
-			if (line.indexOf('#') != -1) {
-				line = line.slice(0, line.indexOf('#'));
-			}
-			if (line.indexOf('=') != -1) {
-				line = line.replace(/ /g, '').split('=');
-				const cfg = config[line[0]];
-				if (cfg) {
-					switch(cfg.type) {
-						case 'int': case 'list': cfg.value = parseInt(line[1]); break;
-						case 'float': cfg.value = parseFloat(line[1]); break;
-						case 'bool': cfg.value = (parseInt(line[1]) != 0); break;
-					}
-				}
-			}
-		}
-		createEntries();
-	});
+	readConfig(path.join(project_dir, 'config.ini'), createEntries);
 };
 
 readFile(path.join(cwd, 'gui/config.json'), data => {
