@@ -38,7 +38,7 @@ body:not(.full-screen)[data-platform = 'win'] {
 	height: 100%;
 	width: 3px;
 }
-[data-platform='win'] > header > div:nth-child(1) {
+[data-platform='win'] > header > div:nth-child(2) {
 	height: 3px;
 	width: 100%;
 }

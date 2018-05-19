@@ -5,13 +5,12 @@ let win;
 function createWindow() {
 	win = new BrowserWindow({
 		width: 960,
-		height: 1440,
+		height: 640,
 		title: 'inv.cu',
 		titleBarStyle: process.platform === 'darwin' ? 'hidden' : '',
 		frame: process.platform != 'win32'
 	});
 	win.loadURL(`${__dirname}/index.html`);
-	win.webContents.openDevTools();
 	win.on('closed', () => {
 		win = null;
 	});
