@@ -8,7 +8,8 @@ function createWindow() {
 		height: 640,
 		title: 'inv.cu',
 		titleBarStyle: process.platform === 'darwin' ? 'hidden' : '',
-		frame: process.platform != 'win32'
+		frame: process.platform != 'win32',
+		darkTheme: true
 	});
 	win.loadURL(`${__dirname}/index.html`);
 	win.on('closed', () => {
