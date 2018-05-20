@@ -9,15 +9,16 @@ const clickLayer = function() {
 };
 const openLayer = function(node, e) {
 	this.innerHTML = '';
+	const headerHeight = document.body.querySelector('header').offsetHeight;
 	node.style.left = e.clientX + 'px';
-	node.style.top = e.clientY + 'px';
+	node.style.top = e.clientY - headerHeight + 'px';
 	node.addEventListener('click', e => {
 		e.stopPropagation();
 	});
 	this.classList.add('active');
 	this.appendChild(node);
 	const top = this.offsetHeight - 10 - node.offsetHeight;
-	if (e.clientY > top) {
+	if (e.clientY - headerHeight > top) {
 		node.style.top = top + 'px';
 	}
 	const input = node.querySelector('input');
