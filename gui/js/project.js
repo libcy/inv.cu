@@ -2,6 +2,13 @@ const path = require('path');
 const fs = require('fs');
 const cwd = path.dirname(path.dirname(__dirname));
 const config = {};
+
+const navProject = document.querySelector('#nav-project');
+const navRun = document.querySelector('#nav-run');
+const mainConfig = document.querySelector('#main-config');
+const menuLayer = document.querySelector('#menu-layer');
+const panelLayer = document.querySelector('#panel-layer');
+
 const getdirs = (pathname, callback) => {
 	fs.readdir(pathname, (err, files) => {
 		if (!err) {
@@ -18,7 +25,6 @@ const getdirs = (pathname, callback) => {
 		}
 	});
 };
-
 const readConfig = (pathname, callback, asDefault) => {
 	fs.readFile(pathname, 'utf8', (err, data) => {
 		const lines = data.split('\n');
@@ -155,7 +161,6 @@ const updateConfig = (cfg, write) => {
 	}
 };
 const createEntries = () => {
-	const menuLayer = document.querySelector('#menu-layer');
 	const createInput = cfg => {
 		const node = create('.context-menu.prompt');
 		const input = create('input', node);
@@ -219,8 +224,32 @@ const createEntries = () => {
 	};
 	for (let cfg of config.entries) {
 		if (cfg.type === 'seperator') {
-			cfg.node = create('.seperator', mainConfig);
+			cfg.node = create('.seperator', mainConfig, function() {
+				this.classList.toggle('collapsed');
+				let started = false;
+				for (let i = 0; i < this.parentNode.childElementCount; i++) {
+					const current = this.parentNode.childNodes[i];
+					if (!started) {
+						if (current === this) {
+							started = true;
+						}
+					}
+					else if (current.classList.contains('seperator')) {
+						break;
+					}
+					else {
+						if (this.classList.contains('collapsed')) {
+							current.style.display = 'none';
+						}
+						else {
+							current.style.display = '';
+						}
+					}
+				}
+			});
 			create('', cfg.name, cfg.node);
+			const figure = create('figure', cfg.node);
+			create(figure, 2);
 		}
 		else if (cfg.id) {
 			cfg.node = create(mainConfig, clickConfig[cfg.type]);
@@ -236,9 +265,6 @@ const createEntries = () => {
 	}
 };
 
-const navProject = document.querySelector('#nav-project');
-const navRun = document.querySelector('#nav-run');
-const mainConfig = document.querySelector('#main-config');
 const loadProject = global.loadProject = name => {
 	config.lines = {};
 	config.lineIds = [];
@@ -264,6 +290,23 @@ fs.readFile(path.join(cwd, 'gui/config.json'), 'utf8', (err, data) => {
 		}
 		else {
 			loadProject(dirs[0]);
+		}
+	});
+});
+
+const panelLeft = create('#panel-left.panel-list');
+panelLeft.onclose = () => {
+	navProject.classList.remove('active');
+};
+navProject.addEventListener('click', () => {
+	navProject.classList.add('active');
+	panelLayer.open(panelLeft);
+	panelLeft.innerHTML = '';
+	getdirs(path.join(cwd, 'projects'), dirs => {
+		if (dirs.length) {
+			const seperator = create('.seperator', panelLeft);
+			create('', 'Local', seperator);
+			// from here
 		}
 	});
 });

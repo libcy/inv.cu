@@ -1,5 +1,8 @@
 const clickLayer = function() {
 	if (this.firstChild) {
+		if (this.firstChild.onclose) {
+			this.firstChild.onclose();
+		}
 		this.firstChild.remove();
 	}
 	this.classList.remove('active');
@@ -22,11 +25,21 @@ const openLayer = function(node, e) {
 		input.focus();
 	}
 };
+const openPanel = function(node) {
+	this.innerHTML = '';
+	const container = create(this);
+	node.addEventListener('click', e => {
+		e.stopPropagation();
+	});
+	container.appendChild(node);
+	container.onclose = node.onclose;
+	this.classList.add('active');
+};
 
 const panelLayer = create('#panel-layer.layer', document.body, clickLayer);
 const menuLayer = create('#menu-layer.layer', document.body, clickLayer);
 
-panelLayer.open = openLayer;
+panelLayer.open = openPanel;
 panelLayer.close = clickLayer;
 menuLayer.open = openLayer;
 menuLayer.close = clickLayer;

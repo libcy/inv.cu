@@ -5,54 +5,51 @@ main > section:nth-child(2) {
 }
 
 /* config */
-#main-config {
+.panel-list {
 	overflow: scroll;
 }
 
-#main-config > div {
+.panel-list > div {
 	width: 100%;
 	height: 45px;
 	white-space: nowrap;
 	overflow: hidden;
 	position: relative;
 	cursor: pointer;
-}
-
-#main-config > div:not(*:last-child) {
 	border-bottom: 1px solid #e1e4e8;
 }
 
-#main-config > div > div {
+.panel-list > div > div {
 	position: absolute;
 }
 
-#main-config > div > div {
+.panel-list > div > div {
 	left: 10px;
 	top: 4px;
 	height: 38px;
 }
 
-#main-config > div > div > div:first-child {
+.panel-list > div > div > div:first-child {
 	font-size: 15px;
 }
 
-#main-config > div > div > div:last-child {
+.panel-list > div > div > div:last-child {
 	margin-top: 3px;
 	font-size: 11px;
 	color: #606060;
 }
 
-#main-config > div:hover {
+.panel-list > div:hover {
 	background-color: #f6f8fa;
 }
 
-#main-config > .seperator {
+.panel-list > .seperator {
 	height: 20px;
 	background-color: #f6f8fa;
 	cursor: default;
 }
 
-#main-config > .seperator >div {
+.panel-list > .seperator > div {
 	left: 10px;
 	font-size: 14px;
 	height: 20px;
@@ -60,6 +57,42 @@ main > section:nth-child(2) {
 	top: 0;
 }
 
-#main-config span {
+.panel-list > .seperator > figure {
+	width: 19px;
+	height: 20px;
+	position: absolute;
+	right: 1px;
+	left: auto;
+	top: 0;
+	margin: 0;
+	transition: transform 0.1s;
+}
+
+.panel-list > .seperator.collapsed > figure {
+	transform: rotate(-90deg);
+	transform-origin: center;
+}
+
+.panel-list > .seperator > figure > div {
+	position: absolute;
+	width: 1px;
+	height: 6px;
+	border-radius: 2px;
+	top: 7px;
+	background-color: #606060;
+	transform-origin: bottom center;
+}
+
+.panel-list > .seperator > figure > div:nth-child(1) {
+	transform: rotate(-46deg);
+	left: 9px;
+}
+
+.panel-list > .seperator > figure > div:nth-child(2) {
+	transform: rotate(46deg);
+	left: 9px;
+}
+
+.panel-list span {
 	color: #547892;
 }

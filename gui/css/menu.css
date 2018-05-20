@@ -14,6 +14,20 @@ body > .layer.active {
 	z-index: 10;
 }
 
+#panel-layer > div {
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.2);
+	height: calc(100% - 50px);
+	top: 50px;
+	position: absolute;
+}
+
+#panel-layer > div > div {
+	position: absolute;
+	height: 100%;
+	background-color: white;
+}
+
 #menu-layer {
 	z-index: 20;
 }
@@ -23,13 +37,13 @@ body > .layer.active {
 	background: white;
 	position: absolute;
 	border-radius: 2px;
-	box-shadow: rgba(0, 0, 0, 0.2) 0 0 0 1px;
+	box-shadow: #d1d4d8 0 0 0 1px;
 }
 
 .context-menu.text > div {
 	position: relative;
 	height: 30px;
-	line-height: 30px;
+	line-height: 29px;
 }
 
 .context-menu.text > div > span {
@@ -67,7 +81,7 @@ body > .layer.active {
 	width: 100%;
 	height: 29px;
 	top: 50px;
-	border-top: 1px solid rgba(0, 0, 0, 0.2);
+	border-top: 1px solid #d1d4d8;
 }
 .context-menu.prompt > div > div {
 	position: absolute;
@@ -81,5 +95,9 @@ body > .layer.active {
 }
 .context-menu.prompt > div > div:last-child {
 	left: 89.5px;
-	border-left: 1px solid rgba(0, 0, 0, 0.2);
+	border-left: 1px solid #d1d4d8;
+}
+
+#panel-left {
+	width: 250px;
 }

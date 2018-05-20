@@ -48,7 +48,7 @@ nav {
 
 main {
 	top: calc(50px + var(--header-height));
-	height: calc(100% - 50px - var(--header-height));
+	height: calc(100% - 49px - var(--header-height));
 }
 
 ::-webkit-scrollbar {

@@ -42,7 +42,7 @@ nav > section > div > div:first-child {
 nav > section > div > div:last-child {
 	margin-top: 1px;
 	font-size: 11px;
-	color: rgb(209, 213, 218);
+	color: rgba(255, 255, 255, 0.8);
 }
 
 /* project */
@@ -70,6 +70,10 @@ nav > section > div > div:last-child {
 #nav-project > figure > div:nth-child(5),
 #nav-project > figure > div:nth-child(6) {
 	top: 30px;
+}
+
+#nav-project.active {
+	background-color: #128ce2;
 }
 
 /* run */

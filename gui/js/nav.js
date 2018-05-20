@@ -18,7 +18,3 @@ create(run_text, '', 'none');
 
 const status_figure = create('figure', status);
 create(status_figure, 2);
-
-require('./nav-project');
-require('./nav-run');
-require('./nav-status');
