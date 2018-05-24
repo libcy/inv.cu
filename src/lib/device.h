@@ -66,6 +66,7 @@ public:
 
 namespace host {
 	const float pi = 3.1415927;
+	const float gr = 0.618034;
 	template<typename T = float>
 	T *create(size_t len) {
 		T *data = (T *)malloc(len * sizeof(T));

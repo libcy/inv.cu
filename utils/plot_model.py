@@ -69,11 +69,11 @@ if __name__ == '__main__':
 	  Can be used to plot models or kernels created by inv.cu
 
 	  SYNTAX
-		  plot_model.py  folder_name  component_name||file_name  (time_step)
+		  plot_model  folder_name  component_name||file_name  (time_step)
 		  add --save to save to image to file
 		  e.g. ./plot_model.py output vx 1000
 			   ./plot_model.py output proc001000_vx.bin
-			   ./plot_model.py projects/example_checker/model_true vs --save
+			   ./plot_model.py projects/example_checker_sh/model_true vs --save
 	"""
 
 	sav = False

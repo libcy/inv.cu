@@ -10,15 +10,24 @@ namespace _Optimizer {
 			d_out2[j * N + i] = d_in2[j * M + i];
 		}
 	}
-	__global__ void updateModel(float *m_new, float *p_new, float alpha, float m_min, float m_max, Dim dim) {
-		int i, j, k; if (dim(i, j, k)) return;
+	__global__ void checkAlpha(float *m_tmp, float *m_new, float *p_new, float alpha, float m_min, float m_max, Dim dim) {
+		int k; if (dim(k)) return;
+		m_tmp[k] = 0;
+		float tmp = m_new[k] + alpha * p_new[k];
+		if (m_min >= 0) {
+			if (m_new[k] >= m_min && tmp < m_min) {
+				m_tmp[k] = 1 + 1 / (1 + (m_min - m_new[k]) / p_new[k]);
+			}
+		}
+		if (m_max >= 0) {
+			if (m_new[k] <= m_max && tmp > m_max) {
+				m_tmp[k] = 1 + 1 / (1 + (m_max - m_new[k]) / p_new[k]);
+			}
+		}
+	}
+	__global__ void updateModel(float *m_new, float *p_new, float alpha, Dim dim) {
+		int k; if (dim(k)) return;
 		m_new[k] += alpha * p_new[k];
-		if (m_min >= 0 && m_new[k] < m_min) {
-			m_new[k] = m_min;
-		}
-		if (m_max > 0 && m_new[k] > m_max) {
-			m_new[k] = m_max;
-		}
 	}
 }
 
@@ -32,6 +41,7 @@ protected:
 
 	float m_max[3];
 	float m_min[3];
+	float *m_tmp;
 
 	float **m_new;
 	float **m_old;
@@ -98,16 +108,6 @@ protected:
 			}
 		}
 	};
-	void p_update(float alpha, float &alpha_old) {
-		using namespace _Optimizer;
-		Dim &dim = solver->dim;
-		for (size_t ip = 0; ip < 3; ip++) {
-			if (inv_parameter[ip]) {
-				updateModel<<<dim.dg, dim.db>>>(m_new[ip], p_new[ip], alpha - alpha_old, m_min[ip], m_max[ip], dim);
-			}
-		}
-		alpha_old = alpha;
-	};
 	void p_toHost(float **h_data, float **data) {
 		for (size_t ip = 0; ip < 3; ip++) {
 			if (inv_parameter[ip]) {
@@ -127,6 +127,49 @@ protected:
 		float yy = p_dot(g, g);
 		float xy = k * p_dot(p, g);
 		return acos(xy / sqrt(xx * yy));
+	};
+	float p_checkAlpha(float alpha, float alpha_old) {
+		using namespace _Optimizer;
+		if (alpha <= alpha_old) return alpha;
+		Dim &dim = solver->dim;
+		float d_alpha = alpha - alpha_old;
+		for (size_t ip = 0; ip < 3; ip++) {
+			if (inv_parameter[ip]) {
+				checkAlpha<<<dim.dg, dim.db>>>(m_tmp, m_new[ip], p_new[ip], d_alpha, m_min[ip], m_max[ip], dim);
+				float d_alpha2 = device::amax(m_tmp, dim) - 1;
+				if (d_alpha2 > 1e-6) {
+					d_alpha2 = 1 / d_alpha2 - 1;
+					printf("  ! @@@@@@@@@@\n");
+					printf("  | d_alpha=%f\n", d_alpha);
+					printf("  | d_alpha2=%f\n", d_alpha2);
+					d_alpha = d_alpha2;
+					int index;
+					device::amax(m_tmp, index, dim);
+					printf("  | index=%d\n", index);
+					printf("  | p_new=%f\n", device::get(p_new[ip], index));
+					printf("  | m_new=%f\n", device::get(m_new[ip], index));
+					printf("  | m_min=%f\n", m_min[ip]);
+				}
+				else if (d_alpha2 > -1e-6) {
+					return -1;
+				}
+			}
+		}
+		if (d_alpha != alpha - alpha_old){
+			d_alpha *= host::gr;
+			printf("  | d_alpha=%f gr=%f\n", d_alpha, host::gr);
+		}
+		return d_alpha + alpha_old;
+	};
+	void p_updateModel(float alpha, float &alpha_old) {
+		using namespace _Optimizer;
+		Dim &dim = solver->dim;
+		for (size_t ip = 0; ip < 3; ip++) {
+			if (inv_parameter[ip]) {
+				updateModel<<<dim.dg, dim.db>>>(m_new[ip], p_new[ip], alpha - alpha_old, dim);
+			}
+		}
+		alpha_old = alpha;
 	};
 
 	void solveQR(double *h_A, double *h_B, double *XC, size_t nrows, size_t ncols){
@@ -333,7 +376,7 @@ protected:
 
 		if(alpha > step_max){
 			if(step_count == 0){
-				alpha = 0.618034 * step_max;
+				alpha = host::gr * step_max;
 				status = 0;
 			}
 			else{
@@ -407,9 +450,11 @@ protected:
 		}
 
 		while(true){
-			p_update(alpha, alpha_old);
-			// p_calc(m_new, 1, m_new, alpha - alpha_old, p_new);
-			// alpha_old = alpha;
+			alpha = p_checkAlpha(alpha, alpha_old);
+			if (alpha < 0) {
+				return -1;
+			}
+			p_updateModel(alpha, alpha_old);
 			ls_lens[ls_count] = alpha;
 			ls_vals[ls_count] = misfit->run(false);
 			ls_count++;
@@ -424,13 +469,11 @@ protected:
 
 			if(status > 0){
 				std::cout << "  alpha = " << alpha << std::endl;
-				p_update(alpha, alpha_old);
-				// p_calc(m_new, 1, m_new, alpha - alpha_old, p_new);
+				p_updateModel(alpha, alpha_old);
 				return status;
 			}
 			else if(status < 0){
-				p_update(0, alpha_old);
-				// p_calc(m_new, 1, m_new, -alpha_old, p_new);
+				p_updateModel(0, alpha_old);
 				if(p_angle(p_new, g_new, -1) < 1e-3){
 					std::cout << "  line search failed" << std::endl;
 					return status;
@@ -514,6 +557,7 @@ public:
 		m_max[lambda] = config->f["lambda_max"];
 		m_max[mu] = config->f["mu_max"];
 		m_max[rho] = config->f["rho_max"];
+		m_tmp = device::create(solver->dim);
 
 		int nstep = inv_iteration * ls_step;
 		ls_vals = host::create(nstep);
