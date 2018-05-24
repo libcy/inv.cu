@@ -147,6 +147,8 @@ protected:
 		}
 		if (d_alpha != alpha - alpha_old){
 			d_alpha *= host::gr;
+			std::cout << "  resizing step length due to search bounds: " <<
+				alpha << " => " << d_alpha + alpha_old << std::endl;
 		}
 		return d_alpha + alpha_old;
 	};
