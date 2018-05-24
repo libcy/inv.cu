@@ -3,6 +3,7 @@
 *.exp
 *.lib
 
+/output
 projects/*
 !projects/example_*
 projects/example_*/output

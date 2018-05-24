@@ -138,17 +138,7 @@ protected:
 				checkAlpha<<<dim.dg, dim.db>>>(m_tmp, m_new[ip], p_new[ip], d_alpha, m_min[ip], m_max[ip], dim);
 				float d_alpha2 = device::amax(m_tmp, dim) - 1;
 				if (d_alpha2 > 1e-6) {
-					d_alpha2 = 1 / d_alpha2 - 1;
-					printf("  ! @@@@@@@@@@\n");
-					printf("  | d_alpha=%f\n", d_alpha);
-					printf("  | d_alpha2=%f\n", d_alpha2);
-					d_alpha = d_alpha2;
-					int index;
-					device::amax(m_tmp, index, dim);
-					printf("  | index=%d\n", index);
-					printf("  | p_new=%f\n", device::get(p_new[ip], index));
-					printf("  | m_new=%f\n", device::get(m_new[ip], index));
-					printf("  | m_min=%f\n", m_min[ip]);
+					d_alpha = 1 / d_alpha2 - 1;
 				}
 				else if (d_alpha2 > -1e-6) {
 					return -1;
@@ -157,7 +147,6 @@ protected:
 		}
 		if (d_alpha != alpha - alpha_old){
 			d_alpha *= host::gr;
-			printf("  | d_alpha=%f gr=%f\n", d_alpha, host::gr);
 		}
 		return d_alpha + alpha_old;
 	};
