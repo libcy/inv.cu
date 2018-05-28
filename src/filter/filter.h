@@ -3,12 +3,12 @@
 class Filter {
 protected:
 	Dim dim;
-	size_t sigma;
+	float param;
 
 public:
-	virtual void init(size_t nx, size_t nz, size_t sigma) {
+	virtual void init(size_t nx, size_t nz, float param) {
 		this->dim.init(nx, nz);
-		this->sigma = sigma;
+		this->param = param;
 	};
 	virtual void apply(float *) = 0;
 	virtual ~Filter() {};

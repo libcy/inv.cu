@@ -40,13 +40,15 @@ class GaussianFilter : public Filter {
 private:
 	float *gsum;
 	float *gtmp;
+	size_t sigma;
 
 public:
-	void init(size_t nx, size_t nz, size_t sigma) {
+	void init(size_t nx, size_t nz, float param) {
 		using namespace _GaussianFilter;
-		Filter::init(nx, nz, sigma);
+		Filter::init(nx, nz, param);
 		gsum = device::create(dim);
 		gtmp = device::create(dim);
+		this->sigma = std::round(param);
 		initialiseGaussian<<<dim.dg, dim.db>>>(gsum, sigma, dim);
 	};
 	void apply(float *data) {

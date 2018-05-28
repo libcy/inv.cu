@@ -104,10 +104,10 @@ int main(int argc, const char *argv[]){
 		{"sigma", 3},
 		{"dx", 2400},
 		{"dz", 2400},
-		{"vp0", 0},
+		{"vp0", 5500},
 		{"vs0", 3500},
 		{"rho0", 2600},
-		{"dvp", 0},
+		{"dvp", 400},
 		{"dvs", 400},
 		{"drho", 0}
 	};
