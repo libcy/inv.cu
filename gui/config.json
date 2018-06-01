@@ -4,6 +4,11 @@
 		"type": "seperator"
 	},
 	{
+		"name": "Inherit",
+		"id": "inherit",
+		"type": "hidden"
+	},
+	{
 		"name": "Mode",
 		"id": "mode",
 		"type": "list",

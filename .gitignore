@@ -4,6 +4,7 @@
 *.lib
 
 /output
+gui/server.json
 projects/*
 !projects/example_*
 projects/example_*/output
