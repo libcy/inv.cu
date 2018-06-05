@@ -51,6 +51,30 @@ const commands = {
     }
 };
 
+getdirs('projects', projects => {
+	const plot = (project, folder, file) => {
+		const path = `projects/${project}/${folder}/proc000000_${file}`;
+		fs.stat(`${path}.bin`, err => {
+			if (!err) {
+				fs.stat(`${path}.png`, err => {
+					if (err) {
+						exec(`./utils/plot_model.py projects/${project}/${folder} ${file} 0 --save`);
+					}
+				});
+			}
+		});
+	};
+
+	for (let project of projects) {
+		plot(project, 'model_true', 'vp');
+		plot(project, 'model_true', 'vs');
+		plot(project, 'model_true', 'rho');
+		plot(project, 'model_init', 'vp');
+		plot(project, 'model_init', 'vs');
+		plot(project, 'model_init', 'rho');
+	}
+});
+
 server.on('connection', ws => {
     if (server.clients.size > 1) {
         ws.close();
@@ -65,10 +89,10 @@ server.on('connection', ws => {
         });
         getdirs('projects', projects => {
             const strs = [], srcs = [], recs = [];
-            for (let name of projects) {
-                strs.push(read('projects', name, 'config.ini'));
-                srcs.push(read('projects', name, 'sources.dat'));
-                recs.push(read('projects', name, 'stations.dat'));
+            for (let project of projects) {
+                strs.push(read('projects', project, 'config.ini'));
+                srcs.push(read('projects', project, 'sources.dat'));
+                recs.push(read('projects', project, 'stations.dat'));
             }
             ws.sendJSON('projects', JSON.parse(read('gui', 'config.json')), projects, strs, srcs, recs);
         })

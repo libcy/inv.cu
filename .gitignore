@@ -9,6 +9,7 @@ projects/*
 !projects/example_*
 projects/example_*/output
 projects/example_*/traces
+projects/example_*/model_*/*.png
 gui/cache
 
 .DS_Store
