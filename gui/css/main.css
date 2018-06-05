@@ -49,6 +49,10 @@ main > section:nth-child(2) {
 	cursor: default;
 }
 
+#main-preview > .seperator:not(*:first-child) {
+	border-top: 1px solid #e1e4e8;
+}
+
 .panel-list > .seperator > div {
 	left: 10px;
 	font-size: 14px;

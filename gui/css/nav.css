@@ -45,6 +45,10 @@ nav > section > div > div:last-child {
 	color: rgba(255, 255, 255, 0.8);
 }
 
+nav > section.active {
+	background-color: #128ce2 !important;
+}
+
 /* project */
 #nav-project > figure > div {
 	background-color: white;
@@ -72,10 +76,6 @@ nav > section > div > div:last-child {
 	top: 30px;
 }
 
-#nav-project.active {
-	background-color: #128ce2;
-}
-
 /* run */
 #nav-run > figure > div {
 	top: 15px;
@@ -85,6 +85,12 @@ nav > section > div > div:last-child {
 	border-style: solid;
 	border-width: 10px 0 10px 15px;
 	border-color: transparent transparent transparent white;
+}
+#nav-run.active > figure > div {
+	left: 15px;
+	top: 17px;
+	border-width: 8px 0 10px 18px;
+	border-color: white;
 }
 
 /* status */

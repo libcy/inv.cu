@@ -101,3 +101,31 @@ body > .layer.active {
 #panel-left {
 	width: 250px;
 }
+
+#panel-right {
+	left: 502px;
+    width: calc(100% - 502px);
+}
+
+#panel-right > div {
+	height: auto;
+}
+#panel-right > div > div {
+	height: auto;
+	top: 0;
+	left: 0;
+	position:  relative ;
+	display: block ;
+	white-space: nowrap ;
+	padding-left: 10px ;
+	padding-top: 4px ;
+	padding-bottom: 4px !important;
+}
+#panel-right > div > div.span {
+	line-height: 14px;
+}
+#panel-right > div > div > span{
+	color: #606060;
+	font-size: 14px;
+	line-height: 14px;
+}

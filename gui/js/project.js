@@ -12,8 +12,8 @@ const mainPreview = document.querySelector('#main-preview');
 const menuLayer = document.querySelector('#menu-layer');
 const panelLayer = document.querySelector('#panel-layer');
 
-const createSeperator = (name, target) => {
-	const node = create('.seperator', target, function() {
+const createSeperator = (name, target, before) => {
+	const node = create('.seperator', function() {
 		this.classList.toggle('collapsed');
 		let started = false;
 		for (let i = 0; i < this.parentNode.childElementCount; i++) {
@@ -39,6 +39,12 @@ const createSeperator = (name, target) => {
 	create('', name, node);
 	const figure = create('figure', node);
 	create(figure, 2);
+	if (before) {
+		target.insertBefore(node, target.firstChild);
+	}
+	else {
+		target.appendChild(node);
+	}
 	return node;
 };
 const createItem = (name, intro, target, onclick) => {
@@ -49,6 +55,7 @@ const createItem = (name, intro, target, onclick) => {
 };
 
 const panelLeft = create('#panel-left.panel-list');
+const panelRight = create('#panel-right.panel-list');
 panelLeft.onclose = () => {
 	navProject.classList.remove('active');
 };
@@ -57,19 +64,36 @@ navProject.addEventListener('click', () => {
 	panelLayer.open(panelLeft);
 	panelLeft.innerHTML = '';
 	// createSeperator('Local', panelLeft);
-	createSeperator('Remote', panelLeft);
+	createSeperator(ip === 'localhost' ? 'Local' : 'Remote', panelLeft);
 
-	const tmp=['nt=5000, nsrc=25, nrec=132',
-	'nt=5000, nsrc=25, nrec=132',
-	'nt=15000, nsrc=32, nrec=500',
-	'nt=15000, nsrc=32, nrec=500']; //remove: later
 	for (let proj in projectMap) {
-		createItem(proj, tmp.shift(), panelLeft, () => {
+		const srcs = projectMap[proj][1].split('\n');
+		const recs = projectMap[proj][2].split('\n');
+		let nsrc = 0;
+		let nrec = 0;
+		for (let line of srcs) {
+			if (line[0] !== '#' && line.length >= 3) {
+				nsrc++;
+			}
+		}
+		for (let line of recs) {
+			if (line[0] !== '#' && line.length >= 3) {
+				nrec++;
+			}
+		}
+		createItem(proj, `${nsrc} sources, ${nrec} stations`, panelLeft, () => {
 			localStorage.setItem('inv_cu_proj', proj);
 			window.location.reload();
 		});
 	}
 });
+navStatus.addEventListener('click', () => {
+	// navStatus.classList.add('active');
+	panelLayer.open(panelRight);
+});
+panelRight.onclose = () => {
+	// navStatus.classList.remove('active');
+};
 
 let currentProject = null;
 const configMap = {};
@@ -78,7 +102,19 @@ const lineMap = {};
 const lineList = [];
 const projectMap = {};
 
-const ws = new WebSocket('ws://' + ip + ':8080'); // server.json
+let ip, password;
+try {
+	const info = JSON.parse(require('fs').readFileSync(`${__dirname}/../server.json`));
+	ip = info.ip;
+	password = info.password;
+}
+catch (e) {
+	require('../server.js');
+	ip = 'localhost';
+	password = '';
+}
+
+const ws = new WebSocket(`ws://${ip}:8080`);
 
 const updateConfig = (cfg, write) => {
 	if (!cfg.hasOwnProperty('value')) return;
@@ -245,12 +281,7 @@ const parseStation = str => {
 		const data = line.split(' ');
 		if (data.length === 2) {
 			nrec++;
-			let str = nrec.toString();
-			while (str.length < 4) {
-				str = '0' + str;
-			}
-
-			createItem(`${formatNumber(data[0])}, ${formatNumber(data[1])}`, 'Station - ' + str, mainRecord);
+			createItem(`${formatNumber(data[0])}, ${formatNumber(data[1])}`, 'Station No.' + nrec, mainRecord);
 		}
 	}
 };
@@ -352,9 +383,7 @@ const loadProject = name => {
 	parseSource(info[1]);
 	parseStation(info[2]);
 
-	mainPreview.cm = createSeperator('Current Model', mainPreview);
-	mainPreview.hm = createSeperator('History Models', mainPreview)
-	mainPreview.im = createSeperator('True Model', mainPreview);
+	mainPreview.tm = createSeperator('True Model', mainPreview);
 	const url = `http://${ip}:8081/projects/${currentProject}`;
 	
 	if (configMap.inv_mu.value) {
@@ -363,7 +392,7 @@ const loadProject = name => {
 	if (configMap.inv_lambda.value) {
 		create('img', mainPreview).src = `${url}/model_true/proc000000_vp.png`;
 	}
-	mainPreview.tm = createSeperator('Initial Model', mainPreview);
+	createSeperator('Initial Model', mainPreview);
 	if (configMap.inv_mu.value) {
 		create('img', mainPreview).src = `${url}/model_init/proc000000_vs.png`;
 	}
@@ -373,7 +402,22 @@ const loadProject = name => {
 };
 
 navRun.addEventListener('click', () => {
-	ws.sendJSON('run', currentProject)
+	if (navRun.classList.contains('active')) {
+		if (confirm('Are your sure to stop current task?')) {
+			window.location.reload();
+		}
+	}
+	else {
+		navRun.classList.add('active');
+		navRun.lastChild.firstChild.innerHTML = 'Running';
+		while (mainPreview.firstChild !== mainPreview.tm) {
+			mainPreview.firstChild.remove();
+		}
+		if (panelRight.childElementCount) {
+			create('', '&nbsp;', panelRight);
+		}
+		ws.sendJSON('run', currentProject)
+	}
 });
 
 const commands = {
@@ -397,14 +441,13 @@ const commands = {
 	},
 	task(str) {
 		navStatus.firstChild.innerHTML = str;
+		let div = 'div';
+		if (str.indexOf('  ') === 0) {
+			div = 'div class="span"';
+		}
+		create('', `<${div}>${str.replace(/ {2}/g, '&nbsp;&nbsp;&nbsp;&nbsp;<span>').replace(/ /g, '&nbsp;')}</div>`, panelRight);
 	},
 	plot(num) {
-		while(mainPreview.cm.nextSibling !== mainPreview.hm) {
-			const node = mainPreview.cm.nextSibling;
-			node.remove();
-			mainPreview.insertBefore(node, mainPreview.im);
-		}
-
 		const frag = document.createDocumentFragment();
 		const url = `http://${ip}:8081/projects/${currentProject}/output`;
 		if (configMap.inv_mu.value) {
@@ -417,7 +460,12 @@ const commands = {
 			img.src = `${url}/proc00000${num}_vp.png`;
 			frag.appendChild(img);
 		}
-		mainPreview.insertBefore(frag, mainPreview.hm);
+		mainPreview.insertBefore(frag, mainPreview.firstChild);
+		createSeperator(`Iteration ${num}`, mainPreview, true);
+	},
+	done() {
+		navRun.lastChild.firstChild.innerHTML = 'Run';
+		navRun.classList.remove('active');
 	}
 };
 
@@ -427,4 +475,7 @@ ws.sendJSON = (...args) => {
 ws.onmessage = msg => {
 	const args = JSON.parse(msg.data);
 	commands[args.shift()].apply(ws, args);
+};
+ws.onopen = () => {
+	ws.sendJSON('password', password);
 };

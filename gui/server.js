@@ -1,4 +1,4 @@
-require('./js/http');
+require('./js/http.js');
 const {Server} = require('ws');
 const path = require('path');
 const fs = require('fs');
@@ -13,7 +13,7 @@ const getdirs = (pathname, callback) => {
 		if (!err) {
 			const dirs = [];
 			for (let file of files) {
-				if (fs.statSync(path.join(pathname, file)).isDirectory) {
+				if (fs.statSync(path.join(cwd, pathname, file)).isDirectory) {
 					dirs.push(file);
 				}
 			}
@@ -26,39 +26,73 @@ const getdirs = (pathname, callback) => {
 };
 const read = (...args) => fs.readFileSync(path.join(cwd, ...args), 'utf8');
 const commands = {
-    updateConfig(project, lines) {
-        fs.writeFileSync(path.join(cwd, 'projects', project, 'config.ini'), lines.join('\n'), 'utf8')
-    },
-    run(project) {
-        const task = spawn('./inv.out', [project]);
-        task.stdout.on('data', data => {
-            let str = data.toString();
-            if (str[str.length - 1] === '\n') {
-                str = str.slice(0, str.length - 1);
-            }
-            this.sendJSON('task', str);
-            const idx = str.indexOf('Starting iteration');
-            if (idx !== -1) {
-                const num = parseInt(str.slice(idx + 18, str.indexOf('/'))) - 1;
-                if (num > 0) {
-                    exec(`./utils/plot_model.py projects/${project}/output vp ${num} --save`);
-                    exec(`./utils/plot_model.py projects/${project}/output vs ${num} --save`, () => {
-                        this.sendJSON('plot', num);
-                    });
-                }
-            }
-        });
-    }
+	updateConfig(project, lines) {
+		fs.writeFileSync(path.join(cwd, 'projects', project, 'config.ini'), lines.join('\n'), 'utf8')
+	},
+	run(project) {
+		const task = spawn('./inv.out', [project]);
+		this.task = task;
+		const base = path.join(cwd, 'projects', project, 'output');
+		let num = 0;
+		const plot = num => {
+			exec(`./utils/plot_model.py ${base} vp ${num} --save`);
+			exec(`./utils/plot_model.py ${base} vs ${num} --save`, () => {
+				this.sendJSON('plot', num);
+			});
+		};
+		task.stdout.on('data', data => {
+			let str = data.toString();
+			if (str[str.length - 1] === '\n') {
+				str = str.slice(0, str.length - 1);
+			}
+			this.sendJSON('task', str);
+			const idx = str.indexOf('Starting iteration');
+			if (idx !== -1) {
+				num = parseInt(str.slice(idx + 18, str.indexOf('/'))) - 1;
+				if (num > 0) {
+					plot(num);
+				}
+			}
+			else if (str.indexOf('Final misfit') !== -1) {
+				plot(num + 1);
+			}
+		});
+		task.on('close', () => {
+			this.sendJSON('done');
+		});
+	},
+	password(password) {
+		try {
+			const info = JSON.parse(read('gui/server.json'));
+			if (info.password !== password) {
+				this.close();
+				return;
+			}
+		}
+		catch (e) {
+			// pass
+		}
+		getdirs('projects', projects => {
+			const strs = [], srcs = [], recs = [];
+			for (let project of projects) {
+				strs.push(read('projects', project, 'config.ini'));
+				srcs.push(read('projects', project, 'sources.dat'));
+				recs.push(read('projects', project, 'stations.dat'));
+			}
+			this.sendJSON('projects', JSON.parse(read('gui', 'config.json')), projects, strs, srcs, recs);
+		});
+	}
 };
 
 getdirs('projects', projects => {
 	const plot = (project, folder, file) => {
-		const path = `projects/${project}/${folder}/proc000000_${file}`;
-		fs.stat(`${path}.bin`, err => {
+		const base = path.join(cwd, 'projects', project, folder);
+		const dir = path.join(base, `proc000000_${file}`);
+		fs.stat(`${dir}.bin`, err => {
 			if (!err) {
-				fs.stat(`${path}.png`, err => {
+				fs.stat(`${dir}.png`, err => {
 					if (err) {
-						exec(`./utils/plot_model.py projects/${project}/${folder} ${file} 0 --save`);
+						exec(`./utils/plot_model.py ${base} ${file} 0 --save`);
 					}
 				});
 			}
@@ -76,25 +110,23 @@ getdirs('projects', projects => {
 });
 
 server.on('connection', ws => {
-    if (server.clients.size > 1) {
-        ws.close();
-    }
-    else {
-        ws.sendJSON = (...args) => {
-            ws.send(JSON.stringify(args));
-        };
-        ws.on('message', msg => {
-            const args = JSON.parse(msg);
-            commands[args.shift()].apply(ws, args);
-        });
-        getdirs('projects', projects => {
-            const strs = [], srcs = [], recs = [];
-            for (let project of projects) {
-                strs.push(read('projects', project, 'config.ini'));
-                srcs.push(read('projects', project, 'sources.dat'));
-                recs.push(read('projects', project, 'stations.dat'));
-            }
-            ws.sendJSON('projects', JSON.parse(read('gui', 'config.json')), projects, strs, srcs, recs);
-        })
-    }
+	if (server.clients.size > 1) {
+		ws.close();
+	}
+	else {
+		ws.sendJSON = (...args) => {
+			if (ws.readyState === 1) {
+				ws.send(JSON.stringify(args));
+			}
+		};
+		ws.on('message', msg => {
+			const args = JSON.parse(msg);
+			commands[args.shift()].apply(ws, args);
+		});
+		ws.on('close', () => {
+			if (ws.task) {
+				ws.task.kill();
+			}
+		});
+	}
 });
