@@ -16,5 +16,6 @@ const run_text = create(run);
 create(run_text, '', 'Run');
 create(run_text, '', 'none');
 
+create(status);
 const status_figure = create('figure', status);
 create(status_figure, 2);

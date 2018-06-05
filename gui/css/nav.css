@@ -116,3 +116,10 @@ nav > section > div > div:last-child {
 	transform: rotate(46deg);
 	left: 16px;
 }
+
+#nav-status > div {
+	position: absolute;
+	left: 20px;
+	top: 10px;
+	line-height: 30px;
+}

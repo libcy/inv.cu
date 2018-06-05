@@ -96,3 +96,10 @@ main > section:nth-child(2) {
 .panel-list span {
 	color: #547892;
 }
+
+#main-preview > img {
+	width: 80%;
+	left: 10%;
+	display: inline-block;
+	position: relative;
+}

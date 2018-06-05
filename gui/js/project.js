@@ -1,73 +1,87 @@
-const path = require('path');
-const fs = require('fs');
-const cwd = path.dirname(path.dirname(__dirname));
-const config = {};
+// const path = require('path');
+// const fs = require('fs');
+// const cwd = path.dirname(path.dirname(__dirname));
+// const config = {};
 
 const navProject = document.querySelector('#nav-project');
 const navRun = document.querySelector('#nav-run');
+const navStatus = document.querySelector('#nav-status');
 const mainConfig = document.querySelector('#main-config');
+const mainRecord = document.querySelector('#main-record');
+const mainPreview = document.querySelector('#main-preview');
 const menuLayer = document.querySelector('#menu-layer');
 const panelLayer = document.querySelector('#panel-layer');
 
-const getdirs = (pathname, callback) => {
-	fs.readdir(pathname, (err, files) => {
-		if (!err) {
-			const dirs = [];
-			for (let file of files) {
-				if (fs.statSync(path.join(pathname, file)).isDirectory) {
-					dirs.push(file);
+const createSeperator = (name, target) => {
+	const node = create('.seperator', target, function() {
+		this.classList.toggle('collapsed');
+		let started = false;
+		for (let i = 0; i < this.parentNode.childElementCount; i++) {
+			const current = this.parentNode.childNodes[i];
+			if (!started) {
+				if (current === this) {
+					started = true;
 				}
 			}
-			callback(dirs);
-		}
-		else {
-			callback([]);
-		}
-	});
-};
-const readConfig = (pathname, callback, asDefault) => {
-	fs.readFile(pathname, 'utf8', (err, data) => {
-		const lines = data.split('\n');
-		for (let line of lines) {
-			const str = line;
-			if (line.indexOf('#') != -1) {
-				line = line.slice(0, line.indexOf('#'));
+			else if (current.classList.contains('seperator')) {
+				break;
 			}
-			let idAdded = false;
-			if (line.indexOf('=') != -1) {
-				line = line.replace(/ /g, '').split('=');
-				const cfg = config[line[0]];
-				if (cfg) {
-					let value = '';
-					switch(cfg.type) {
-						case 'int': case 'list': value = parseInt(line[1]); break;
-						case 'float': value = parseFloat(line[1]); break;
-						case 'bool': value = (parseInt(line[1]) != 0); break;
-					}
-					if (asDefault) {
-						cfg.defaultValue = value;
-						if (!cfg.hasOwnProperty(value)) {
-							cfg.value = value;
-						}
-					}
-					else {
-						cfg.value = value;
-						config.lines[line[0]] = str;
-						if (!config.lineIds.includes(line[0])) {
-							config.lineIds.push(line[0]);
-						}
-						idAdded = true;
-					}
+			else {
+				if (this.classList.contains('collapsed')) {
+					current.style.display = 'none';
+				}
+				else {
+					current.style.display = '';
 				}
 			}
-			if (!idAdded) {
-				config.lineIds.push('__' + str);
-			}
 		}
-		callback();
 	});
+	create('', name, node);
+	const figure = create('figure', node);
+	create(figure, 2);
+	return node;
 };
+const createItem = (name, intro, target, onclick) => {
+	const node = create(target, onclick);
+	const container = create(node);
+	create('', name, container);
+	create('', intro, container);
+};
+
+const panelLeft = create('#panel-left.panel-list');
+panelLeft.onclose = () => {
+	navProject.classList.remove('active');
+};
+navProject.addEventListener('click', () => {
+	navProject.classList.add('active');
+	panelLayer.open(panelLeft);
+	panelLeft.innerHTML = '';
+	// createSeperator('Local', panelLeft);
+	createSeperator('Remote', panelLeft);
+
+	const tmp=['nt=5000, nsrc=25, nrec=132',
+	'nt=5000, nsrc=25, nrec=132',
+	'nt=15000, nsrc=32, nrec=500',
+	'nt=15000, nsrc=32, nrec=500']; //remove: later
+	for (let proj in projectMap) {
+		createItem(proj, tmp.shift(), panelLeft, () => {
+			localStorage.setItem('inv_cu_proj', proj);
+			window.location.reload();
+		});
+	}
+});
+
+let currentProject = null;
+const configMap = {};
+const configList = [];
+const lineMap = {};
+const lineList = [];
+const projectMap = {};
+
+const ws = new WebSocket('ws://' + ip + ':8080'); // server.json
+
 const updateConfig = (cfg, write) => {
+	if (!cfg.hasOwnProperty('value')) return;
 	let str;
 	if (cfg.options) {
 		str = cfg.options[cfg.value];
@@ -88,11 +102,11 @@ const updateConfig = (cfg, write) => {
 
 	if (write) {
 		if (cfg.hasOwnProperty('defaultValue') && cfg.defaultValue === cfg.value) {
-			if (config.lines[cfg.id]) {
-				delete config.lines[cfg.id];
-				let idx = config.lineIds.indexOf(cfg.id);
+			if (lineMap[cfg.id]) {
+				delete lineMap[cfg.id];
+				const idx = lineList.indexOf(cfg.id);
 				if (idx !== -1) {
-					config.lineIds.splice(idx, 1);
+					lineList.splice(idx, 1);
 				}
 			}
 		}
@@ -107,8 +121,8 @@ const updateConfig = (cfg, write) => {
 			else {
 				strvalue = cfg.value.toString();
 			}
-			if (config.lines[cfg.id]) {
-				const line = config.lines[cfg.id].split(' ');
+			if (lineMap[cfg.id]) {
+				const line = lineMap[cfg.id].split(' ');
 				let eq = false;
 				for (let i = 0; i < line.length; i++) {
 					if (line[i]) {
@@ -135,32 +149,128 @@ const updateConfig = (cfg, write) => {
 						}
 					}
 				}
-				config.lines[cfg.id] = line.join(' ');
+				lineMap[cfg.id] = line.join(' ');
 			}
 			else {
-				config.lines[cfg.id] = cfg.id + ' = ' + strvalue;
-				if (!config.lineIds.includes(cfg.id)) {
-					config.lineIds.push(cfg.id);
+				lineMap[cfg.id] = cfg.id + ' = ' + strvalue;
+				if (!lineList.includes(cfg.id)) {
+					lineList.push(cfg.id);
 				}
 			}
 		}
 		const lines = [];
-		for (let id of config.lineIds) {
+		for (let id of lineList) {
 			if (id.indexOf('__') === 0) {
 				lines.push(id.slice(2));
 			}
-			else if (config.lines[id]) {
-				lines.push(config.lines[id]);
+			else if (lineMap[id]) {
+				lines.push(lineMap[id]);
 			}
 		}
-		fs.writeFile(config.path, lines.join('\n'), 'utf8', err => {
-			if (err) {
-				alert('Failed to write config file.');
-			}
-		});
+		ws.sendJSON('updateConfig', currentProject, lines);
 	}
 };
-const createEntries = () => {
+const parseConfig = (str, asDefault) => {
+	const lines = str.split('\n');
+	for (let line of lines) {
+		const str = line;
+		if (line.indexOf('#') != -1) {
+			line = line.slice(0, line.indexOf('#'));
+		}
+		let idAdded = false;
+		if (line.indexOf('=') != -1) {
+			line = line.replace(/ /g, '').split('=');
+			const cfg = configMap[line[0]];
+			if (cfg) {
+				let value = '';
+				switch(cfg.type) {
+					case 'int': case 'list': value = parseInt(line[1]); break;
+					case 'float': value = parseFloat(line[1]); break;
+					case 'bool': value = (parseInt(line[1]) != 0); break;
+					case 'hidden': value = line[1]; break;
+				}
+				if (asDefault) {
+					cfg.defaultValue = value;
+					if (!cfg.hasOwnProperty('value')) {
+						cfg.value = value;
+					}
+				}
+				else {
+					cfg.value = value;
+					lineMap[line[0]] = str;
+					if (!lineList.includes(line[0])) {
+						lineList.push(line[0]);
+					}
+					idAdded = true;
+				}
+			}
+		}
+		if (!idAdded && !asDefault) {
+			lineList.push('__' + str);
+		}
+	}
+};
+const formatNumber = str => {
+	const num = parseFloat(str);
+	if (num > 99999) {
+		return num.toExponential(2);
+	}
+	else {
+		str = num.toString();
+		const idx = str.indexOf('.');
+		if (idx !== -1) {
+			str = str.slice(0, idx + 3);
+		}
+		else {
+			str += '.00';
+		}
+		return str;
+	}
+};
+const parseSource = str => {
+	createSeperator('Sources', mainRecord);
+	const lines = str.split('\n');
+	for (let line of lines) {
+		const data = line.split(' ');
+		if (data.length === 7) {
+			createItem(`${formatNumber(data[0])}, ${formatNumber(data[1])}`, `Ricker, ${data[3]*4.2}Hz`, mainRecord);
+		}
+	}
+};
+const parseStation = str => {
+	createSeperator('Stations', mainRecord);
+	const lines = str.split('\n');
+	let nrec = 0;
+	for (let line of lines) {
+		const data = line.split(' ');
+		if (data.length === 2) {
+			nrec++;
+			let str = nrec.toString();
+			while (str.length < 4) {
+				str = '0' + str;
+			}
+
+			createItem(`${formatNumber(data[0])}, ${formatNumber(data[1])}`, 'Station - ' + str, mainRecord);
+		}
+	}
+};
+const loadProject = name => {
+	currentProject = name;
+	for (let i in configMap) {
+		delete configMap[i].value;
+		delete configMap[i].defaultValue;
+	}
+	for (let i in lineMap) {
+		delete lineMap[i];
+	}
+	lineList.length = 0;
+	const info = projectMap[name];
+	parseConfig(info[0]);
+	if (configMap.inherit.value) {
+		parseConfig(projectMap[configMap.inherit.value][0], true);
+	}
+	navProject.lastChild.lastChild.innerHTML = name;
+
 	const createInput = cfg => {
 		const node = create('.context-menu.prompt');
 		const input = create('input', node);
@@ -222,36 +332,11 @@ const createEntries = () => {
 			updateConfig(this.cfg, true);
 		}
 	};
-	for (let cfg of config.entries) {
+	for (let cfg of configList) {
 		if (cfg.type === 'seperator') {
-			cfg.node = create('.seperator', mainConfig, function() {
-				this.classList.toggle('collapsed');
-				let started = false;
-				for (let i = 0; i < this.parentNode.childElementCount; i++) {
-					const current = this.parentNode.childNodes[i];
-					if (!started) {
-						if (current === this) {
-							started = true;
-						}
-					}
-					else if (current.classList.contains('seperator')) {
-						break;
-					}
-					else {
-						if (this.classList.contains('collapsed')) {
-							current.style.display = 'none';
-						}
-						else {
-							current.style.display = '';
-						}
-					}
-				}
-			});
-			create('', cfg.name, cfg.node);
-			const figure = create('figure', cfg.node);
-			create(figure, 2);
+			cfg.node = createSeperator(cfg.name, mainConfig);
 		}
-		else if (cfg.id) {
+		else if (cfg.id && cfg.type !== 'hidden') {
 			cfg.node = create(mainConfig, clickConfig[cfg.type]);
 			cfg.node.cfg = cfg;
 			const text = create(cfg.node);
@@ -260,53 +345,86 @@ const createEntries = () => {
 			updateConfig(cfg);
 		}
 	}
-	if (config.mode) {
-		navRun.lastChild.lastChild.innerHTML = config.mode.options[config.mode.value];
+	if (configMap.mode) {
+		navRun.lastChild.lastChild.innerHTML = configMap.mode.options[configMap.mode.value];
+	}
+
+	parseSource(info[1]);
+	parseStation(info[2]);
+
+	mainPreview.cm = createSeperator('Current Model', mainPreview);
+	mainPreview.hm = createSeperator('History Models', mainPreview)
+	mainPreview.im = createSeperator('True Model', mainPreview);
+	const url = `http://${ip}:8081/projects/${currentProject}`;
+	
+	if (configMap.inv_mu.value) {
+		create('img', mainPreview).src = `${url}/model_true/proc000000_vs.png`;
+	}
+	if (configMap.inv_lambda.value) {
+		create('img', mainPreview).src = `${url}/model_true/proc000000_vp.png`;
+	}
+	mainPreview.tm = createSeperator('Initial Model', mainPreview);
+	if (configMap.inv_mu.value) {
+		create('img', mainPreview).src = `${url}/model_init/proc000000_vs.png`;
+	}
+	if (configMap.inv_lambda.value) {
+		create('img', mainPreview).src = `${url}/model_init/proc000000_vp.png`;
 	}
 };
 
-const loadProject = global.loadProject = name => {
-	config.lines = {};
-	config.lineIds = [];
-	localStorage.setItem('inv.cu_project', name);
-	navProject.lastChild.lastChild.innerHTML = name;
-	const project_dir = path.join(cwd, 'projects', name);
-	config.path = path.join(project_dir, 'config.ini');
-	readConfig(config.path, createEntries);
-};
+navRun.addEventListener('click', () => {
+	ws.sendJSON('run', currentProject)
+});
 
-fs.readFile(path.join(cwd, 'gui/config.json'), 'utf8', (err, data) => {
-	data = JSON.parse(data);
-	config.entries = data;
-	for (let entry of data) {
-		if (entry.id) {
-			config[entry.id] = entry;
+const commands = {
+	projects(cfgs, projs, strs, srcs, recs) {
+		for (let cfg of cfgs) {
+			configList.push(cfg);
+			if (cfg.id) {
+				configMap[cfg.id] = cfg;
+			}
 		}
-	}
-	getdirs(path.join(cwd, 'projects'), dirs => {
-		const current = localStorage.getItem('inv.cu_project');
-		if (current && dirs.includes(current)) {
-			loadProject(current);
+		for (let i = 0; i < projs.length; i++) {
+			projectMap[projs[i]] = [strs[i], srcs[i], recs[i]];
+		}
+		const saved = localStorage.getItem('inv_cu_proj');
+		if (projs.includes(saved)) {
+			loadProject(saved);
 		}
 		else {
-			loadProject(dirs[0]);
+			loadProject(projs[0]);
 		}
-	});
-});
+	},
+	task(str) {
+		navStatus.firstChild.innerHTML = str;
+	},
+	plot(num) {
+		while(mainPreview.cm.nextSibling !== mainPreview.hm) {
+			const node = mainPreview.cm.nextSibling;
+			node.remove();
+			mainPreview.insertBefore(node, mainPreview.im);
+		}
 
-const panelLeft = create('#panel-left.panel-list');
-panelLeft.onclose = () => {
-	navProject.classList.remove('active');
-};
-navProject.addEventListener('click', () => {
-	navProject.classList.add('active');
-	panelLayer.open(panelLeft);
-	panelLeft.innerHTML = '';
-	getdirs(path.join(cwd, 'projects'), dirs => {
-		if (dirs.length) {
-			const seperator = create('.seperator', panelLeft);
-			create('', 'Local', seperator);
-			// from here
+		const frag = document.createDocumentFragment();
+		const url = `http://${ip}:8081/projects/${currentProject}/output`;
+		if (configMap.inv_mu.value) {
+			const img = create('img');
+			img.src = `${url}/proc00000${num}_vs.png`;
+			frag.appendChild(img);
 		}
-	});
-});
+		if (configMap.inv_lambda.value) {
+			const img = create('img');
+			img.src = `${url}/proc00000${num}_vp.png`;
+			frag.appendChild(img);
+		}
+		mainPreview.insertBefore(frag, mainPreview.hm);
+	}
+};
+
+ws.sendJSON = (...args) => {
+	ws.send(JSON.stringify(args));
+};
+ws.onmessage = msg => {
+	const args = JSON.parse(msg.data);
+	commands[args.shift()].apply(ws, args);
+};

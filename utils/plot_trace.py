@@ -4,6 +4,8 @@ import sys
 from os.path import exists
 
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import pylab
 
 
