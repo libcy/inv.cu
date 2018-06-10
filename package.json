@@ -1,5 +1,8 @@
 {
     "name": "inv.cu",
     "version": "0.0.1",
-    "main": "gui/main.js"
+    "main": "gui/main.js",
+    "dependencies": {
+        "ws": "^5.2.0"
+    }
 }

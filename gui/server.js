@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const spawn = require('child_process').spawn;
 const exec = require('child_process').exec;
+const plotjs = require('./js/plot.js');
 
 const server = new Server({port: 8080});
 const cwd = path.dirname(__dirname);
@@ -35,10 +36,9 @@ const commands = {
 		const base = path.join(cwd, 'projects', project, 'output');
 		let num = 0;
 		const plot = num => {
-			exec(`./utils/plot_model.py ${base} vp ${num} --save`);
-			exec(`./utils/plot_model.py ${base} vs ${num} --save`, () => {
-				this.sendJSON('plot', num);
-			});
+			plotjs(base, 'vp', num);
+			plotjs(base, 'vs', num, )
+			this.sendJSON('plot', num);
 		};
 		task.stdout.on('data', data => {
 			let str = data.toString();
@@ -92,7 +92,7 @@ getdirs('projects', projects => {
 			if (!err) {
 				fs.stat(`${dir}.png`, err => {
 					if (err) {
-						exec(`./utils/plot_model.py ${base} ${file} 0 --save`);
+						plotjs(base, file);
 					}
 				});
 			}
