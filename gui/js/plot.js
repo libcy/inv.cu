@@ -40,10 +40,14 @@ module.exports = (dir, comp, num=0) => {
     const x = read(dir, 'proc000000_x.bin');
     const z = read(dir, 'proc000000_z.bin');
     const v = read(dir, `${filename}.bin`);
-    const dx = Math.max(...x) / (nx - 1);
-    const dz = Math.max(...z) / (nz - 1);
+
+    const xmax = Math.max(...x);
+    const zmax = Math.max(...z);
     const vmax = Math.max(...v);
     const vmin = Math.min(...v);
+
+    const dx = xmax / (nx - 1);
+    const dz = zmax / (nz - 1);
     const dv = Math.max(0.01, vmax - vmin);
     const nm = Math.round(nx / 15);
     const ns = Math.round(nx / 15);
@@ -78,6 +82,9 @@ module.exports = (dir, comp, num=0) => {
         }
         else {
             ratio = (v[i] - vmin) / (vmax - vmin);
+            if (vmax <= vmin) {
+                ratio = 0.5;
+            }
         }
         set(ratio, idx);
     }
@@ -90,4 +97,5 @@ module.exports = (dir, comp, num=0) => {
     }
     png.pack().pipe(fs.createWriteStream(path.join(dir, `${filename}.png`)));
 
+    return [xmax, zmax, vmin, vmax];
 };

@@ -1,8 +1,3 @@
-// const path = require('path');
-// const fs = require('fs');
-// const cwd = path.dirname(path.dirname(__dirname));
-// const config = {};
-
 const navProject = document.querySelector('#nav-project');
 const navRun = document.querySelector('#nav-run');
 const navStatus = document.querySelector('#nav-status');
@@ -269,7 +264,7 @@ const parseSource = str => {
 	for (let line of lines) {
 		const data = line.split(' ');
 		if (data.length === 7) {
-			createItem(`${formatNumber(data[0])}, ${formatNumber(data[1])}`, `Ricker, ${data[3]*4.2}Hz`, mainRecord);
+			createItem(`${formatNumber(data[0])}, ${formatNumber(data[1])}`, `Ricker, ${data[3]}Hz`, mainRecord);
 		}
 	}
 };
@@ -385,7 +380,7 @@ const loadProject = name => {
 
 	mainPreview.tm = createSeperator('True Model', mainPreview);
 	const url = `http://${ip}:8081/projects/${currentProject}`;
-	
+
 	if (configMap.inv_mu.value) {
 		create('img', mainPreview).src = `${url}/model_true/proc000000_vs.png`;
 	}
@@ -421,7 +416,7 @@ navRun.addEventListener('click', () => {
 });
 
 const commands = {
-	projects(cfgs, projs, strs, srcs, recs) {
+	projects(cfgs, projs, strs, srcs, recs, modelinfo) {
 		for (let cfg of cfgs) {
 			configList.push(cfg);
 			if (cfg.id) {
@@ -438,6 +433,7 @@ const commands = {
 		else {
 			loadProject(projs[0]);
 		}
+		console.log(modelinfo)
 	},
 	task(str) {
 		navStatus.firstChild.innerHTML = str;
@@ -447,7 +443,7 @@ const commands = {
 		}
 		create('', `<${div}>${str.replace(/ {2}/g, '&nbsp;&nbsp;&nbsp;&nbsp;<span>').replace(/ /g, '&nbsp;')}</div>`, panelRight);
 	},
-	plot(num) {
+	plot(num, info_vp, info_vs, info_rho) {
 		const frag = document.createDocumentFragment();
 		const url = `http://${ip}:8081/projects/${currentProject}/output`;
 		if (configMap.inv_mu.value) {
@@ -460,8 +456,17 @@ const commands = {
 			img.src = `${url}/proc00000${num}_vp.png`;
 			frag.appendChild(img);
 		}
+		if (configMap.inv_rho.value) {
+			const img = create('img');
+			img.src = `${url}/proc00000${num}_rho.png`;
+			frag.appendChild(img);
+		}
+		// from here: img chrome; on-demand plot model
 		mainPreview.insertBefore(frag, mainPreview.firstChild);
 		createSeperator(`Iteration ${num}`, mainPreview, true);
+	},
+	model(folder, file) {
+		console.log(folder, file);
 	},
 	done() {
 		navRun.lastChild.firstChild.innerHTML = 'Run';

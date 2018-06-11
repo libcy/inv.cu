@@ -26,6 +26,7 @@ const getdirs = (pathname, callback) => {
 	});
 };
 const read = (...args) => fs.readFileSync(path.join(cwd, ...args), 'utf8');
+const modelinfo = {};
 const commands = {
 	updateConfig(project, lines) {
 		fs.writeFileSync(path.join(cwd, 'projects', project, 'config.ini'), lines.join('\n'), 'utf8')
@@ -36,9 +37,10 @@ const commands = {
 		const base = path.join(cwd, 'projects', project, 'output');
 		let num = 0;
 		const plot = num => {
-			plotjs(base, 'vp', num);
-			plotjs(base, 'vs', num, )
-			this.sendJSON('plot', num);
+			const info_vp = plotjs(base, 'vp', num);
+			const info_vs = plotjs(base, 'vs', num);
+			const info_rho = plotjs(base, 'rho', num);
+			this.sendJSON('plot', num, info_vp, info_vs, info_rho);
 		};
 		task.stdout.on('data', data => {
 			let str = data.toString();
@@ -69,9 +71,7 @@ const commands = {
 				return;
 			}
 		}
-		catch (e) {
-			// pass
-		}
+		catch (e) {}
 		getdirs('projects', projects => {
 			const strs = [], srcs = [], recs = [];
 			for (let project of projects) {
@@ -79,7 +79,7 @@ const commands = {
 				srcs.push(read('projects', project, 'sources.dat'));
 				recs.push(read('projects', project, 'stations.dat'));
 			}
-			this.sendJSON('projects', JSON.parse(read('gui', 'config.json')), projects, strs, srcs, recs);
+			this.sendJSON('projects', JSON.parse(read('gui', 'config.json')), projects, strs, srcs, recs, modelinfo);
 		});
 	}
 };
@@ -90,16 +90,13 @@ getdirs('projects', projects => {
 		const dir = path.join(base, `proc000000_${file}`);
 		fs.stat(`${dir}.bin`, err => {
 			if (!err) {
-				fs.stat(`${dir}.png`, err => {
-					if (err) {
-						plotjs(base, file);
-					}
-				});
+				modelinfo[project][folder][file] = plotjs(base, file);
 			}
 		});
 	};
 
 	for (let project of projects) {
+		modelinfo[project] = {model_true:{}, model_init:{}};
 		plot(project, 'model_true', 'vp');
 		plot(project, 'model_true', 'vs');
 		plot(project, 'model_true', 'rho');
