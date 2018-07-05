@@ -443,6 +443,7 @@ protected:
 		while(true){
 			alpha = p_checkAlpha(alpha, alpha_old);
 			if (alpha < 0) {
+				std::cout << "  parameter out of range" << std::endl;
 				return -1;
 			}
 			p_updateModel(alpha, alpha_old);
