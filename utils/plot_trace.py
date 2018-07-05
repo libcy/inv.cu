@@ -5,7 +5,6 @@ from os.path import exists
 
 import numpy as np
 import matplotlib
-matplotlib.use('agg')
 import pylab
 
 
@@ -43,6 +42,7 @@ if __name__ == '__main__':
 	for i in range(len(sys.argv)):
 		if sys.argv[i] == '--save':
 			sav = True
+			matplotlib.use('agg')
 
 	istr = ''
 	if len(sys.argv) > 3:

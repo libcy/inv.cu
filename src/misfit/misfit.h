@@ -7,6 +7,7 @@ protected:
 	float **obs_x;
 	float **obs_y;
 	float **obs_z;
+	float *trace;
 
 	virtual float run(float *, float *, float *) = 0;
 
@@ -31,11 +32,14 @@ public:
 			for (size_t irec = 0; irec < nrec; irec++) {
 				size_t irt = irec * nt;
 				if (solver->sh) {
-					misfit += run(solver->out_y + irt, obs_y[isrc] + irt, solver->adstf_y + irt);
+					host::toDevice(trace, obs_y[isrc], dim);
+					misfit += run(solver->out_y + irt, trace + irt, solver->adstf_y + irt);
 				}
 				if (solver->psv) {
-					misfit += run(solver->out_x + irt, obs_x[isrc] + irt, solver->adstf_x + irt);
-					misfit += run(solver->out_z + irt, obs_z[isrc] + irt, solver->adstf_z + irt);
+					host::toDevice(trace, obs_x[isrc], dim);
+					misfit += run(solver->out_x + irt, trace + irt, solver->adstf_x + irt);
+					host::toDevice(trace, obs_z[isrc], dim);
+					misfit += run(solver->out_z + irt, trace + irt, solver->adstf_z + irt);
 				}
 			}
 			if (kernel) {
@@ -57,7 +61,6 @@ public:
 		short int header3[2];
 		float header4[30];
 
-		float *buffer = host::create(nt * nrec);
 		auto filename = [&](string comp) {
 			string istr = std::to_string(isrc);
 			for (size_t i = istr.size(); i < 6; i++) {
@@ -72,10 +75,9 @@ public:
 				infile.read(reinterpret_cast<char*>(header2), 2 * sizeof(short int));
 				infile.read(reinterpret_cast<char*>(header3), 2 * sizeof(short int));
 				infile.read(reinterpret_cast<char*>(header4), 30 * sizeof(float));
-				infile.read(reinterpret_cast<char*>(buffer + ir * nt), nt * sizeof(float));
+				infile.read(reinterpret_cast<char*>(data + ir * nt), nt * sizeof(float));
 			}
 			infile.close();
-			host::toDevice(data, buffer, nt * nrec);
 		};
 
 		if (solver->sh) {
@@ -85,8 +87,6 @@ public:
 			read("x", obs_x[isrc]);
 			read("z", obs_z[isrc]);
 		}
-
-		free(buffer);
 	};
 	virtual void init(Config *config, Solver *solver, Filter *filter = nullptr) {
 		this->solver = solver;
@@ -99,24 +99,22 @@ public:
 
 		size_t &nsrc = solver->nsrc, &nrec = solver->nrec, &nt = solver->nt;
 		Dim dim(nt, nrec);
-		obs_x = device::create2D(nsrc, dim);
-		obs_y = device::create2D(nsrc, dim);
-		obs_z = device::create2D(nsrc, dim);
-
+		obs_x = host::create2D(nsrc, dim);
+		obs_y = host::create2D(nsrc, dim);
+		obs_z = host::create2D(nsrc, dim);
+		trace = device::create(dim);
+		
 		if (config->i["trace_file"]) {
 			for (size_t is = 0; is < nsrc; is++) {
 				this->importTraces(is, config->path);
 			}
 			if (solver->trace_type == 0) {
 				float &dt = solver->dt;
-				float *buffer = host::create(nt);
-				auto v2u = [&](float *trace) {
-					device::toHost(buffer, trace, nt);
-					buffer[0] *= dt;
+				auto v2u = [&](float *data) {
+					data[0] *= dt;
 					for (size_t it = 1; it < nt; it++) {
-						buffer[it] = buffer[it - 1] + buffer[it] * dt;
+						data[it] = data[it - 1] + data[it] * dt;
 					}
-					host::toDevice(trace, buffer, nt);
 				};
 				for (size_t is = 0; is < nsrc; is++) {
 					for (size_t ir = 0; ir < nrec; ir++) {
@@ -129,7 +127,6 @@ public:
 						}
 					}
 				}
-				free(buffer);
 			}
 		}
 		else {
@@ -138,11 +135,11 @@ public:
 			for (size_t is = 0; is < nsrc; is++) {
 				solver->runForward(is);
 				if (solver->sh) {
-					device::copy(obs_y[is], solver->out_y, dim);
+					device::toHost(obs_y[is], solver->out_y, dim);
 				}
 				if (solver->psv) {
-					device::copy(obs_x[is], solver->out_x, dim);
-					device::copy(obs_z[is], solver->out_z, dim);
+					device::toHost(obs_x[is], solver->out_x, dim);
+					device::toHost(obs_z[is], solver->out_z, dim);
 				}
 			}
 		}

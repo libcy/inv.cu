@@ -8,6 +8,7 @@
 #include <ctime>
 #include <map>
 #include <vector>
+#include <algorithm>
 #include <cufft.h>
 #include <cublas_v2.h>
 #include <cusolverDn.h>
